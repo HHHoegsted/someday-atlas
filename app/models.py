@@ -20,6 +20,7 @@ class Video(SQLModel, table=True):
 
     journey: Optional["Journey"] = Relationship(back_populates="video")
     location_appearances: list["VideoLocationAppearance"] = Relationship(back_populates="video")
+    capture_events: list["CaptureEvent"] = Relationship(back_populates="video")
 
 
 class Journey(SQLModel, table=True):
@@ -55,9 +56,15 @@ class CaptureEvent(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     created_by: Optional[str] = None
     kind: str = Field(default="note", nullable=False)
+    location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+    video_id: Optional[int] = Field(default=None, foreign_key="video.id")
+    timestamp_seconds: Optional[int] = None
     raw_text: str
     processed_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=utcnow, nullable=False)
+
+    location: Optional["Location"] = Relationship(back_populates="capture_events")
+    video: Optional["Video"] = Relationship(back_populates="capture_events")
 
 
 class Location(SQLModel, table=True):
@@ -79,6 +86,7 @@ class Location(SQLModel, table=True):
     )
     children: list["Location"] = Relationship(back_populates="parent")
     video_appearances: list["VideoLocationAppearance"] = Relationship(back_populates="location")
+    capture_events: list["CaptureEvent"] = Relationship(back_populates="location")
     root_journeys: list["LocationJourney"] = Relationship(back_populates="root_location")
     journey_stops: list["LocationJourneyStop"] = Relationship(back_populates="location")
 

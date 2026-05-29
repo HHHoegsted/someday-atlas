@@ -1,125 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="detail-hero split">
-    <div>
-        <p class="eyebrow">Location backbone</p>
-        <h1>Build the atlas from locations outward.</h1>
-        <p class="lede">This first implementation slice adds hierarchical locations and timestamped video appearances without breaking the older video-owns-journey flow.</p>
-    </div>
-    <div class="detail-meta">
-        <p><strong>Root locations:</strong> {{ locations|length }}</p>
-        <p><strong>Direct appearances:</strong> {{ total_appearances }}</p>
-        <p><strong>Use now:</strong> create cities, districts, ports, attractions, hotels, and attach videos later.</p>
-    </div>
-</section>
-
-<section class="two-column">
-    <div class="form-shell">
-        <div class="section-header narrow compact">
-            <div>
-                <p class="eyebrow">Create</p>
-                <h2>Add a top-level location</h2>
-            </div>
-        </div>
-        <section class="geocode-shell location-geocode-shell">
-            <div class="section-header narrow compact geocode-header">
-                <div>
-                    <p class="eyebrow">Lookup</p>
-                    <h2>Find the right place first</h2>
-                </div>
-            </div>
-            <form
-                class="geocode-form"
-                hx-post="/locations/geocode"
-                hx-target="#location-geocode-results"
-                hx-swap="innerHTML"
-            >
-                <label>
-                    <span>Search</span>
-                    <input type="text" name="query" placeholder="Melby, Denmark">
-                </label>
-                <button class="button secondary" type="submit">Search places</button>
-            </form>
-            <div id="location-geocode-results" class="geocode-results"></div>
-        </section>
-        <form class="stack-form" method="post" action="/locations">
-            <label>
-                <span>Name</span>
-                <input id="location-name" type="text" name="name" placeholder="Tokyo" required>
-            </label>
-            <div class="field-row">
-                <label>
-                    <span>Kind</span>
-                    <select name="kind">
-                        <option value="city">city</option>
-                        <option value="district">district</option>
-                        <option value="port">port</option>
-                        <option value="attraction">attraction</option>
-                        <option value="hotel">hotel</option>
-                        <option value="mall">mall</option>
-                        <option value="place">place</option>
-                    </select>
-                </label>
-                <label>
-                    <span>Country</span>
-                    <input id="location-country" type="text" name="country" placeholder="Japan">
-                </label>
-            </div>
-            <div class="field-row">
-                <label>
-                    <span>Region</span>
-                    <input id="location-region" type="text" name="region" placeholder="Kanto">
-                </label>
-                <label>
-                    <span>Notes</span>
-                    <input type="text" name="notes" placeholder="Optional context">
-                </label>
-            </div>
-            <div class="field-row">
-                <label>
-                    <span>Latitude</span>
-                    <input id="location-latitude" type="number" step="any" name="latitude" placeholder="35.6762">
-                </label>
-                <label>
-                    <span>Longitude</span>
-                    <input id="location-longitude" type="number" step="any" name="longitude" placeholder="139.6503">
-                </label>
-            </div>
-            <button class="button" type="submit">Create location</button>
-        </form>
-    </div>
-
+<section class="location-stack">
     <div class="timeline-shell">
         <div class="section-header narrow compact">
             <div>
-                <p class="eyebrow">Browse</p>
-                <h2>Top-level locations</h2>
+                <h2>Root locations</h2>
             </div>
         </div>
-        {% if locations %}
         <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/locations/new">
+                <div class="compact-list-copy">
+                    <h3>Add a location</h3>
+                    <p>Create a new root place for the atlas</p>
+                </div>
+            </a>
             {% for location in locations %}
-            <article class="location-card">
-                <div>
-                    <p class="eyebrow">{{ location.kind|title }}</p>
+            <a class="compact-list-card" href="/locations/{{ location.id }}">
+                <div class="compact-list-copy">
                     <h3>{{ location.name }}</h3>
-                    <p>{{ location.country or location.region or "No region yet" }}</p>
+                    <p>{{ location.kind|title }}{% if location.country or location.region %} · {{ location.country or location.region }}{% endif %} · {{ location.children|length }} child places</p>
                 </div>
-                <div class="location-card-meta">
-                    <span>{{ location.children|length }} children</span>
-                    <span>{{ location.video_appearances|length }} direct video links</span>
-                </div>
-                <a class="text-link" href="/locations/{{ location.id }}">Open location</a>
-            </article>
+            </a>
             {% endfor %}
         </div>
-        {% else %}
-        <div class="empty-state compact">
-            <h3>No locations yet</h3>
-            <p>Create a city or port first, then grow the atlas with child locations and timestamped video links.</p>
-        </div>
-        {% endif %}
     </div>
 </section>
 {% endblock %}

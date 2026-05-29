@@ -67,7 +67,7 @@
             <div>
                 <h2>Recent videos</h2>
             </div>
-            <a class="button secondary" href="/videos/new">Add a video</a>
+            <a class="button secondary" href="/videos">Open videos</a>
         </div>
         {% if recent_videos %}
         <div class="location-list">
@@ -82,7 +82,7 @@
         </div>
         {% else %}
         <div class="location-list">
-            <a class="compact-list-card add-card compact-list-link-card" href="/videos/new">
+            <a class="compact-list-card add-card compact-list-link-card" href="/videos">
                 <div class="compact-list-copy">
                     <h3>Add a video</h3>
                     <p>Save source material you can attach to places later</p>
@@ -90,34 +90,6 @@
             </a>
         </div>
         {% endif %}
-    </div>
-    
-    <div class="timeline-shell">
-        <div class="section-header narrow compact location-section-gap">
-            <div>
-                <h2>What this atlas wants</h2>
-            </div>
-        </div>
-        <div class="location-list">
-            <a class="compact-list-card compact-list-link-card" href="/locations">
-                <div class="compact-list-copy">
-                    <h3>Start with a root place</h3>
-                    <p>Create the big anchor location first, then nest the specific places under it.</p>
-                </div>
-            </a>
-            <a class="compact-list-card compact-list-link-card" href="/capture">
-                <div class="compact-list-copy">
-                    <h3>Capture fast notes on your phone</h3>
-                    <p>Keep the watching flow light, then clean up the structure later.</p>
-                </div>
-            </a>
-            <a class="compact-list-card compact-list-link-card" href="/map">
-                <div class="compact-list-copy">
-                    <h3>See the atlas on the map</h3>
-                    <p>Browse root places, linked appearances, and journeys in one shared view.</p>
-                </div>
-            </a>
-        </div>
     </div>
 </section>
 {% endblock %}

@@ -78,6 +78,18 @@ def _load_location_journey_or_404(session: Session, journey_id: int) -> Location
     return journey
 
 
+def _load_capture_or_404(session: Session, capture_id: int) -> CaptureEvent:
+    statement = (
+        select(CaptureEvent)
+        .where(CaptureEvent.id == capture_id)
+        .options(selectinload(CaptureEvent.location), selectinload(CaptureEvent.video))
+    )
+    capture_event = session.exec(statement).one_or_none()
+    if capture_event is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Capture not found")
+    return capture_event
+
+
 def _parse_optional_float(value: str) -> float | None:
     normalized = value.strip()
     return float(normalized) if normalized else None
@@ -147,14 +159,23 @@ def locations_index(request: Request, session: Session = Depends(get_session)):
         .order_by(Location.name.asc())
     )
     locations = list(session.exec(statement))
-    total_appearances = sum(len(location.video_appearances) for location in locations)
     return templates.TemplateResponse(
         request,
         "locations_index.html",
         {
             "page_title": "Locations",
             "locations": locations,
-            "total_appearances": total_appearances,
+        },
+    )
+
+
+@router.get("/locations/new")
+def new_root_location_page(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "location_new.html",
+        {
+            "page_title": "Add location",
         },
     )
 
@@ -474,8 +495,18 @@ def create_location_journey_stop(
 
 @router.get("/capture")
 def capture_page(request: Request, session: Session = Depends(get_session), saved: int = 0):
-    statement = select(CaptureEvent).order_by(CaptureEvent.created_at.desc()).limit(12)
+    statement = (
+        select(CaptureEvent)
+        .options(selectinload(CaptureEvent.location), selectinload(CaptureEvent.video))
+        .order_by(CaptureEvent.created_at.desc())
+        .limit(12)
+    )
     capture_events = list(session.exec(statement))
+    capture_watch_urls = {
+        event.id: build_watch_url(event.video.youtube_url, event.video.youtube_id, event.timestamp_seconds)
+        for event in capture_events
+        if event.id is not None and event.video is not None
+    }
     remembered_creator = request.cookies.get("atlas_capture_identity", "")
     return templates.TemplateResponse(
         request,
@@ -483,6 +514,7 @@ def capture_page(request: Request, session: Session = Depends(get_session), save
         {
             "page_title": "Capture",
             "capture_events": capture_events,
+            "capture_watch_urls": capture_watch_urls,
             "remembered_creator": remembered_creator,
             "saved": bool(saved),
         },
@@ -498,6 +530,7 @@ def create_capture_event(
     session: Session = Depends(get_session),
 ):
     creator_name = created_by.strip() or created_by_custom.strip() or None
+
     capture_event = CaptureEvent(
         created_by=creator_name,
         kind=kind.strip() or "note",
@@ -514,6 +547,76 @@ def create_capture_event(
             samesite="lax",
         )
     return response
+
+
+@router.get("/captures/{capture_id}/edit")
+def edit_capture_page(request: Request, capture_id: int, session: Session = Depends(get_session), saved: int = 0):
+    capture_event = _load_capture_or_404(session, capture_id)
+    location_statement = select(Location).order_by(Location.name.asc())
+    video_statement = select(Video).order_by(Video.title.asc())
+    capture_watch_url = None
+    if capture_event.video is not None:
+        capture_watch_url = build_watch_url(
+            capture_event.video.youtube_url,
+            capture_event.video.youtube_id,
+            capture_event.timestamp_seconds,
+        )
+
+    return templates.TemplateResponse(
+        request,
+        "capture_edit.html",
+        {
+            "page_title": "Link Capture",
+            "capture_event": capture_event,
+            "locations": list(session.exec(location_statement)),
+            "videos": list(session.exec(video_statement)),
+            "capture_watch_url": capture_watch_url,
+            "saved": bool(saved),
+        },
+    )
+
+
+@router.post("/captures/{capture_id}/edit")
+def update_capture_links(
+    capture_id: int,
+    video_id: str = Form(default=""),
+    timestamp_seconds: str = Form(default=""),
+    location_id: str = Form(default=""),
+    session: Session = Depends(get_session),
+):
+    capture_event = _load_capture_or_404(session, capture_id)
+    linked_location_id = _parse_optional_int(location_id)
+    if linked_location_id is not None:
+        _load_location_or_404(session, linked_location_id)
+
+    linked_video_id = _parse_optional_int(video_id)
+    if linked_video_id is not None:
+        _load_video_or_404(session, linked_video_id)
+
+    capture_event.location_id = linked_location_id
+    capture_event.video_id = linked_video_id
+    capture_event.timestamp_seconds = _parse_optional_int(timestamp_seconds) if linked_video_id is not None else None
+    session.add(capture_event)
+    session.commit()
+    return RedirectResponse(url=f"/captures/{capture_event.id}/edit?saved=1", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/videos")
+def videos_index(request: Request, session: Session = Depends(get_session)):
+    statement = (
+        select(Video)
+        .options(selectinload(Video.journey).selectinload(Journey.stops))
+        .order_by(Video.created_at.desc())
+    )
+    videos = list(session.exec(statement))
+    return templates.TemplateResponse(
+        request,
+        "videos_index.html",
+        {
+            "page_title": "Videos",
+            "videos": videos,
+        },
+    )
 
 
 @router.get("/videos/new")

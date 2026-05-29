@@ -1,14 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="section-header narrow">
-    <div>
-        <p class="eyebrow">Step 1</p>
-        <h1>Add a video manually</h1>
-    </div>
-</section>
-
 <section class="form-shell">
+    <div class="section-header narrow compact compact-form-header">
+        <div>
+            <h2>Add a video</h2>
+        </div>
+    </div>
     <form class="stack-form" method="post" action="/videos">
         <label>
             <span>YouTube URL</span>

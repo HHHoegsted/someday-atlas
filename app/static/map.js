@@ -186,6 +186,26 @@ function initializeCaptureProfiles() {
     syncActiveProfile(selectedProfileInput.value.trim());
 }
 
+function initializeCaptureCardLinks() {
+    document.body.addEventListener("click", (event) => {
+        const card = event.target.closest(".capture-card[data-capture-card-url]");
+        if (!card || !window.matchMedia("(min-width: 900px)").matches) {
+            return;
+        }
+
+        if (event.target.closest("a, button, input, select, textarea, label")) {
+            return;
+        }
+
+        const destination = card.dataset.captureCardUrl;
+        if (!destination) {
+            return;
+        }
+
+        window.location.href = destination;
+    });
+}
+
 function initializeGeocodeApplyButtons() {
     const fieldIdMap = {
         stop: {
@@ -330,6 +350,7 @@ function renderLocationPreviewMaps() {
 
 document.addEventListener("DOMContentLoaded", renderJourneyMap);
 document.addEventListener("DOMContentLoaded", initializeCaptureProfiles);
+document.addEventListener("DOMContentLoaded", initializeCaptureCardLinks);
 document.addEventListener("DOMContentLoaded", initializeGeocodeApplyButtons);
 document.addEventListener("DOMContentLoaded", renderGeocodePreviewMaps);
 document.addEventListener("DOMContentLoaded", renderLocationPreviewMaps);

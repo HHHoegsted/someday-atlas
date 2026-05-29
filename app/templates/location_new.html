@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="two-column single-focus-layout">
+    <div class="form-shell">
+        <section class="geocode-shell location-geocode-shell">
+            <div class="section-header narrow compact geocode-header compact-form-header">
+                <div>
+                    <h2>Find the right place first</h2>
+                </div>
+            </div>
+            <form class="geocode-form" hx-post="/locations/geocode" hx-target="#location-geocode-results" hx-swap="innerHTML">
+                <label>
+                    <span>Search</span>
+                    <input type="text" name="query" placeholder="London, England">
+                </label>
+                <button class="button secondary" type="submit">Search places</button>
+            </form>
+            <div id="location-geocode-results" class="geocode-results"></div>
+        </section>
+
+        <div class="section-header narrow compact compact-form-header">
+            <div>
+                <h2>Create root location</h2>
+            </div>
+        </div>
+        <form class="stack-form" method="post" action="/locations">
+            <label>
+                <span>Name</span>
+                <input id="location-name" type="text" name="name" placeholder="Tokyo" required>
+            </label>
+            <div class="field-row">
+                <label>
+                    <span>Kind</span>
+                    <select name="kind">
+                        <option value="city">city</option>
+                        <option value="district">district</option>
+                        <option value="port">port</option>
+                        <option value="attraction">attraction</option>
+                        <option value="hotel">hotel</option>
+                        <option value="mall">mall</option>
+                        <option value="station">station</option>
+                        <option value="place">place</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Country</span>
+                    <input id="location-country" type="text" name="country" placeholder="Japan">
+                </label>
+            </div>
+            <div class="field-row">
+                <label>
+                    <span>Region</span>
+                    <input id="location-region" type="text" name="region" placeholder="Kanto">
+                </label>
+                <label>
+                    <span>Notes</span>
+                    <input type="text" name="notes" placeholder="Optional context">
+                </label>
+            </div>
+            <div class="field-row">
+                <label>
+                    <span>Latitude</span>
+                    <input id="location-latitude" type="number" step="any" name="latitude" placeholder="35.6762">
+                </label>
+                <label>
+                    <span>Longitude</span>
+                    <input id="location-longitude" type="number" step="any" name="longitude" placeholder="139.6503">
+                </label>
+            </div>
+            <div class="edit-actions-row">
+                <button class="button" type="submit">Create location</button>
+                <a class="button secondary" href="/locations">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

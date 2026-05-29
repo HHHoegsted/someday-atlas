@@ -46,7 +46,7 @@ This keeps the app containerized from the start and makes it easy to attach a re
 5. Attach that video to a location from the location detail flow
 6. Create a place-owned journey rooted at a saved location
 7. Open `/map` to see saved places and rendered route lines
-8. Use `/capture` on a phone for quick raw notes during a watch session
+8. Use `/capture` on a phone for form-only quick raw notes during a watch session, or on desktop for a slimmer capture form plus recent capture history and optional place attachment
 
 ## Places-first backbone
 
