@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="section-header narrow">
+    <div>
+        <p class="eyebrow">Step 1</p>
+        <h1>Add a video manually</h1>
+    </div>
+</section>
+
+<section class="form-shell">
+    <form class="stack-form" method="post" action="/videos">
+        <label>
+            <span>YouTube URL</span>
+            <input type="url" name="youtube_url" placeholder="https://www.youtube.com/watch?v=..." required>
+        </label>
+        <label>
+            <span>Title</span>
+            <input type="text" name="title" placeholder="Two Weeks in Japan by Train" required>
+        </label>
+        <label>
+            <span>Channel name</span>
+            <input type="text" name="channel_name" placeholder="Optional">
+        </label>
+        <label>
+            <span>Notes</span>
+            <textarea name="notes" rows="5" placeholder="Why this one feels worth saving..."></textarea>
+        </label>
+        <button class="button" type="submit">Save video</button>
+    </form>
+</section>
+{% endblock %}

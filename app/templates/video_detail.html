@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="detail-hero">
+    <div>
+        <p class="eyebrow">Video</p>
+        <h1>{{ video.title }}</h1>
+        <p class="lede">{{ video.notes or "No notes yet." }}</p>
+    </div>
+    <div class="detail-meta">
+        <p><strong>Channel:</strong> {{ video.channel_name or "Unknown / not set" }}</p>
+        <p><strong>YouTube ID:</strong> {{ video.youtube_id or "Could not parse from URL" }}</p>
+        <a class="text-link" href="{{ watch_url }}" target="_blank" rel="noreferrer">Open on YouTube</a>
+    </div>
+</section>
+
+{% if video.journey %}
+<section class="section-header narrow">
+    <div>
+        <p class="eyebrow">Journey</p>
+        <h2>{{ video.journey.name }}</h2>
+    </div>
+    <a class="button secondary" href="/journeys/{{ video.journey.id }}">Open journey</a>
+</section>
+{% else %}
+<section class="form-shell">
+    <div class="section-header narrow compact">
+        <div>
+            <p class="eyebrow">Step 2</p>
+            <h2>Create the journey</h2>
+        </div>
+    </div>
+    <form class="stack-form" method="post" action="/journeys">
+        <input type="hidden" name="video_id" value="{{ video.id }}">
+        <label>
+            <span>Journey name</span>
+            <input type="text" name="name" placeholder="Japan by Train" required>
+        </label>
+        <label>
+            <span>Description</span>
+            <textarea name="description" rows="4" placeholder="Optional vibe, route, or memory"></textarea>
+        </label>
+        <button class="button" type="submit">Create journey</button>
+    </form>
+</section>
+{% endif %}
+{% endblock %}

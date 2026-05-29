@@ -1,0 +1,39 @@
+{% if error_message %}
+<div class="geocode-feedback error">{{ error_message }}</div>
+{% elif not query %}
+<div class="geocode-feedback">Type a place query to search for likely matches.</div>
+{% elif candidates %}
+<div class="geocode-feedback">Choose the best hit for "{{ query }}". You can still edit the values before saving the stop.</div>
+<div class="geocode-candidate-list">
+    {% for candidate in candidates %}
+    <article class="geocode-candidate-card">
+        <div class="geocode-selected-badge">Selected</div>
+        <div class="geocode-candidate-main">
+            <h4>{{ candidate.place_name }}</h4>
+            <p>{{ candidate.display_name }}</p>
+            <p>{{ candidate.latitude }}, {{ candidate.longitude }}</p>
+        </div>
+        <div
+            class="geocode-preview-map"
+            data-geocode-preview-map
+            data-latitude="{{ candidate.latitude }}"
+            data-longitude="{{ candidate.longitude }}"
+            data-place-name="{{ candidate.place_name }}"
+        ></div>
+        <button
+            type="button"
+            class="button secondary geocode-apply-button"
+            data-place-name="{{ candidate.place_name }}"
+            data-country="{{ candidate.country or '' }}"
+            data-region="{{ candidate.region or '' }}"
+            data-latitude="{{ candidate.latitude }}"
+            data-longitude="{{ candidate.longitude }}"
+        >
+            Use this place
+        </button>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="geocode-feedback">No matches found for "{{ query }}". Try a more specific query or enter the coordinates manually.</div>
+{% endif %}

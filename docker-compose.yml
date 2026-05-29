@@ -1,0 +1,21 @@
+services:
+  atlas-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: someday-atlas-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - atlas_data:/data
+    restart: unless-stopped
+    networks:
+      - atlas_net
+
+volumes:
+  atlas_data:
+
+networks:
+  atlas_net:
+    name: someday-atlas-network
+    driver: bridge

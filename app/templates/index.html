@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-panel">
+    <div>
+        <p class="eyebrow">Private homelab atlas</p>
+        <h1>Turn travel videos into cozy map memories.</h1>
+        <p class="lede">Add a YouTube video, give it one journey, then pin each stop in story order. The MVP stays manual on purpose so capture stays light.</p>
+    </div>
+    <div class="hero-stats">
+        <article>
+            <span>{{ videos|length }}</span>
+            <p>videos saved</p>
+        </article>
+        <article>
+            <span>{{ total_stops }}</span>
+            <p>stops pinned</p>
+        </article>
+        <article>
+            <span>{{ videos|selectattr('journey')|list|length }}</span>
+            <p>journeys mapped</p>
+        </article>
+    </div>
+</section>
+
+<section class="section-header">
+    <div>
+        <p class="eyebrow">Library</p>
+        <h2>Recent videos</h2>
+    </div>
+    <a class="button" href="/videos/new">Add a video</a>
+</section>
+
+{% if videos %}
+<section class="card-grid">
+    {% for video in videos %}
+    <article class="card">
+        <div class="card-header">
+            <p class="eyebrow">{{ video.channel_name or "Manual entry" }}</p>
+            <h3>{{ video.title }}</h3>
+        </div>
+        <p>{{ video.notes or "No notes yet." }}</p>
+        <div class="card-meta">
+            <span>{{ video.youtube_id or "No YouTube ID parsed" }}</span>
+            {% if video.journey %}
+            <span>{{ video.journey.stops|length }} stops</span>
+            {% else %}
+            <span>No journey yet</span>
+            {% endif %}
+        </div>
+        <div class="card-actions">
+            <a href="/videos/{{ video.id }}">Open video</a>
+            {% if video.journey %}
+            <a href="/journeys/{{ video.journey.id }}">Journey</a>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% else %}
+<section class="empty-state">
+    <h2>No travel videos yet</h2>
+    <p>Start by saving one YouTube travel video you want to remember later.</p>
+    <a class="button" href="/videos/new">Create the first video</a>
+</section>
+{% endif %}
+{% endblock %}

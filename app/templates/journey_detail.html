@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="detail-hero split">
+    <div>
+        <p class="eyebrow">Journey</p>
+        <h1>{{ journey.name }}</h1>
+        <p class="lede">{{ journey.description or "Map the route in the same order it happened in the video." }}</p>
+    </div>
+    <div class="detail-meta">
+        <p><strong>Video:</strong> {{ journey.video.title }}</p>
+        <a class="text-link" href="{{ video_watch_url }}" target="_blank" rel="noreferrer">Open video</a>
+        <a class="text-link" href="/map">See all journeys on the map</a>
+    </div>
+</section>
+
+<section class="two-column">
+    <div class="form-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <p class="eyebrow">Step 3</p>
+                <h2>Add a stop</h2>
+            </div>
+        </div>
+        <section class="geocode-shell">
+            <div class="section-header narrow compact geocode-header">
+                <div>
+                    <p class="eyebrow">Place helper</p>
+                    <h3>Search by place name</h3>
+                </div>
+            </div>
+            <form
+                class="geocode-form"
+                hx-post="/journeys/{{ journey.id }}/geocode"
+                hx-target="#geocode-results"
+                hx-swap="innerHTML"
+            >
+                <label>
+                    <span>Search query</span>
+                    <input type="text" name="query" placeholder="Melby, Denmark">
+                </label>
+                <button class="button secondary" type="submit">Find matches</button>
+            </form>
+            <div id="geocode-results" class="geocode-results"></div>
+        </section>
+        <form class="stack-form" method="post" action="/journeys/{{ journey.id }}/stops">
+            <label>
+                <span>Place name</span>
+                <input id="stop-place-name" type="text" name="place_name" placeholder="Kyoto" required>
+            </label>
+            <div class="field-row">
+                <label>
+                    <span>Latitude</span>
+                    <input id="stop-latitude" type="number" step="any" name="latitude" placeholder="35.0116" required>
+                </label>
+                <label>
+                    <span>Longitude</span>
+                    <input id="stop-longitude" type="number" step="any" name="longitude" placeholder="135.7681" required>
+                </label>
+            </div>
+            <div class="field-row">
+                <label>
+                    <span>Order index</span>
+                    <input type="number" name="order_index" min="1" value="{{ ordered_stops|length + 1 }}" required>
+                </label>
+                <label>
+                    <span>Timestamp seconds</span>
+                    <input type="number" name="timestamp_seconds" min="0" placeholder="1930">
+                </label>
+            </div>
+            <div class="field-row">
+                <label>
+                    <span>Country</span>
+                    <input id="stop-country" type="text" name="country" placeholder="Japan">
+                </label>
+                <label>
+                    <span>Region</span>
+                    <input id="stop-region" type="text" name="region" placeholder="Kansai">
+                </label>
+            </div>
+            <label>
+                <span>Note</span>
+                <textarea name="note" rows="4" placeholder="Old streets and temples"></textarea>
+            </label>
+            <button class="button" type="submit">Save stop</button>
+        </form>
+    </div>
+
+    <div class="timeline-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <p class="eyebrow">Route</p>
+                <h2>Stops in order</h2>
+            </div>
+        </div>
+        {% if ordered_stops %}
+        <ol class="timeline-list">
+            {% for stop in ordered_stops %}
+            <li>
+                <div class="timeline-index">{{ stop.order_index }}</div>
+                <div>
+                    <h3>{{ stop.place_name }}</h3>
+                    <p>{{ stop.country or stop.region or "Manual coordinates" }}</p>
+                    <p>{{ stop.note or "No note yet." }}</p>
+                    {% if stop.timestamp_seconds is not none %}
+                    <a class="text-link" href="{{ stop_watch_urls.get(stop.id) }}" target="_blank" rel="noreferrer">Open at {{ stop.timestamp_seconds }}s</a>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <div class="empty-state compact">
+            <h3>No stops yet</h3>
+            <p>Add the first pin and the map route will start taking shape.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

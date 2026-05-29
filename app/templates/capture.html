@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="capture-hero">
+    <div>
+        <p class="eyebrow">Mobile capture</p>
+        <h1>Fast notes while the video is still playing.</h1>
+        <p class="lede">This page is intentionally simple: tap, type a thought, save it, and get back to the TV.</p>
+    </div>
+    <div class="capture-hint-card">
+        <p>Examples</p>
+        <ul>
+            <li>Osaka food chaos yes</li>
+            <li>too crowded</li>
+            <li>that train station looked cozy</li>
+        </ul>
+    </div>
+</section>
+
+<section class="capture-layout">
+    <div class="capture-panel">
+        {% if saved %}
+        <div class="flash-banner">Saved. Keep watching.</div>
+        {% endif %}
+
+        <form class="capture-form" method="post" action="/capture">
+            <label>
+                <span>Quick note</span>
+                <textarea name="raw_text" rows="5" placeholder="Kyoto alley at night, yes." required autofocus></textarea>
+            </label>
+
+            <input id="capture-created-by" type="hidden" name="created_by" value="{{ remembered_creator if remembered_creator in ['HH', 'Sara', 'Charlie'] else '' }}">
+
+            <div class="capture-profiles" aria-label="Quick profiles">
+                <span class="capture-profile-label">Profiles</span>
+                <div class="capture-profile-list">
+                    <button type="button" class="profile-chip{% if remembered_creator == 'HH' %} is-active{% endif %}" data-profile-value="HH">HH</button>
+                    <button type="button" class="profile-chip{% if remembered_creator == 'Sara' %} is-active{% endif %}" data-profile-value="Sara">Sara</button>
+                    <button type="button" class="profile-chip{% if remembered_creator == 'Charlie' %} is-active{% endif %}" data-profile-value="Charlie">Charlie</button>
+                </div>
+            </div>
+
+            <div class="field-row compact-row">
+                <label id="capture-custom-field" class="capture-custom-field{% if remembered_creator in ['HH', 'Sara', 'Charlie'] %} is-collapsed{% endif %}">
+                    <span>Custom who</span>
+                    <input id="capture-created-by-custom" type="text" name="created_by_custom" value="{{ remembered_creator if remembered_creator not in ['HH', 'Sara', 'Charlie'] else '' }}" placeholder="Optional custom name"{% if remembered_creator in ['HH', 'Sara', 'Charlie'] %} disabled{% endif %}>
+                </label>
+                <label>
+                    <span>Kind</span>
+                    <select name="kind">
+                        <option value="note">note</option>
+                        <option value="place">place</option>
+                        <option value="wow">wow</option>
+                        <option value="food">food</option>
+                        <option value="nope">nope</option>
+                        <option value="stay">stay</option>
+                        <option value="move">move</option>
+                    </select>
+                </label>
+            </div>
+
+            <p class="capture-meta">Pick HH, Sara, or Charlie for one-tap capture. If none is selected, the custom name field opens back up.</p>
+
+            <button class="button capture-button" type="submit">Save capture</button>
+        </form>
+    </div>
+
+    <aside class="capture-feed">
+        <div class="section-header narrow compact feed-header">
+            <div>
+                <p class="eyebrow">Recent</p>
+                <h2>Latest captures</h2>
+            </div>
+        </div>
+
+        {% if capture_events %}
+        <div class="capture-list">
+            {% for event in capture_events %}
+            <article class="capture-card">
+                <div class="capture-card-top">
+                    <span class="capture-kind">{{ event.kind }}</span>
+                    <span>{{ event.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <p class="capture-text">{{ event.raw_text }}</p>
+                <p class="capture-meta">{{ event.created_by or "Someone" }}</p>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state compact">
+            <h3>No captures yet</h3>
+            <p>The first quick note you save will show up here.</p>
+        </div>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}
