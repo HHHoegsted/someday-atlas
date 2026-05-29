@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="detail-hero split">
+    <div>
+        <p class="eyebrow">Add sub-location</p>
+        <h1>{{ location.name }}</h1>
+        <p class="lede">Create a child place under this location, then return to the location page when you are done.</p>
+        <nav class="breadcrumb-nav">
+            <a href="/locations">Locations</a>
+            {% for crumb in breadcrumb %}
+            <span>/</span>
+            {% if loop.last %}
+            <strong>Add child for {{ crumb.name }}</strong>
+            {% else %}
+            <a href="/locations/{{ crumb.id }}">{{ crumb.name }}</a>
+            {% endif %}
+            {% endfor %}
+        </nav>
+    </div>
+    <div class="detail-meta">
+        <p><strong>Parent:</strong> {{ location.name }}</p>
+        <p><strong>Country:</strong> {{ location.country or "Not set" }}</p>
+        <p><strong>Region:</strong> {{ location.region or "Not set" }}</p>
+        <p><a class="text-link" href="/locations/{{ location.id }}">Back to location page</a></p>
+    </div>
+</section>
+
+<section class="two-column single-focus-layout">
+    <div class="form-shell">
+        <section class="geocode-shell location-geocode-shell">
+            <div class="section-header narrow compact geocode-header">
+                <div>
+                    <p class="eyebrow">Lookup</p>
+                    <h2>Find the correct place</h2>
+                </div>
+            </div>
+            <form class="geocode-form" hx-post="/locations/geocode" hx-target="#location-geocode-results" hx-swap="innerHTML">
+                <label>
+                    <span>Search</span>
+                    <input type="text" name="query" placeholder="Melby, Denmark">
+                </label>
+                <button class="button secondary" type="submit">Search places</button>
+            </form>
+            <div id="location-geocode-results" class="geocode-results"></div>
+        </section>
+
+        <div class="section-header narrow compact">
+            <div>
+                <p class="eyebrow">Details</p>
+                <h2>Create child location</h2>
+            </div>
+        </div>
+        <form class="stack-form" method="post" action="/locations/{{ location.id }}/children">
+            <label>
+                <span>Name</span>
+                <input id="location-name" type="text" name="name" placeholder="Shibuya" required>
+            </label>
+            <div class="field-row">
+                <label>
+                    <span>Kind</span>
+                    <select name="kind">
+                        <option value="district">district</option>
+                        <option value="attraction">attraction</option>
+                        <option value="hotel">hotel</option>
+                        <option value="mall">mall</option>
+                        <option value="station">station</option>
+                        <option value="port">port</option>
+                        <option value="place">place</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Country</span>
+                    <input id="location-country" type="text" name="country" value="{{ location.country or '' }}" placeholder="Japan">
+                </label>
+            </div>
+            <div class="field-row">
+                <label>
+                    <span>Region</span>
+                    <input id="location-region" type="text" name="region" value="{{ location.region or '' }}" placeholder="Kanto">
+                </label>
+                <label>
+                    <span>Notes</span>
+                    <input type="text" name="notes" placeholder="Optional detail">
+                </label>
+            </div>
+            <div class="field-row">
+                <label>
+                    <span>Latitude</span>
+                    <input id="location-latitude" type="number" step="any" name="latitude" placeholder="35.6595">
+                </label>
+                <label>
+                    <span>Longitude</span>
+                    <input id="location-longitude" type="number" step="any" name="longitude" placeholder="139.7005">
+                </label>
+            </div>
+            <div class="edit-actions-row">
+                <button class="button" type="submit">Create sub-location</button>
+                <a class="button secondary" href="/locations/{{ location.id }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="detail-hero split">
+    <div>
+        <p class="eyebrow">Place-owned journey</p>
+        <h1>{{ journey.name }}</h1>
+        <p class="lede">{{ journey.description or "This route belongs to a location, not a video. Add saved places in the order you want the atlas to draw them." }}</p>
+        <nav class="breadcrumb-nav">
+            <a href="/locations">Locations</a>
+            <span>/</span>
+            <a href="/locations/{{ journey.root_location.id }}">{{ journey.root_location.name }}</a>
+            <span>/</span>
+            <strong>{{ journey.name }}</strong>
+        </nav>
+    </div>
+    <div class="detail-meta">
+        <p><strong>Root location:</strong> {{ journey.root_location.name }}</p>
+        <p><strong>Stops:</strong> {{ ordered_stops|length }}</p>
+        <p><strong>Map rendering:</strong> route line from saved locations</p>
+    </div>
+</section>
+
+<section class="two-column">
+    <div class="form-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <p class="eyebrow">Extend</p>
+                <h2>Add a saved location to this route</h2>
+            </div>
+        </div>
+        <form class="stack-form" method="post" action="/location-journeys/{{ journey.id }}/stops">
+            <label>
+                <span>Location</span>
+                <select name="location_id" required>
+                    <option value="" disabled selected>Select a mapped location</option>
+                    {% for location in selectable_locations %}
+                    <option value="{{ location.id }}">{{ location.name }}{% if location.country %} · {{ location.country }}{% endif %}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="field-row">
+                <label>
+                    <span>Order index</span>
+                    <input type="number" name="order_index" min="1" placeholder="Leave blank to append">
+                </label>
+                <label>
+                    <span>Note</span>
+                    <input type="text" name="note" placeholder="Optional route note">
+                </label>
+            </div>
+            <button class="button" type="submit">Add route stop</button>
+        </form>
+    </div>
+
+    <div class="timeline-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <p class="eyebrow">Order</p>
+                <h2>Journey stops</h2>
+            </div>
+        </div>
+        {% if ordered_stops %}
+        <div class="appearance-list">
+            {% for stop in ordered_stops %}
+            <article class="appearance-card">
+                <div class="appearance-topline">
+                    <span>#{{ stop.order_index }}</span>
+                    <span>{{ stop.location.name }}</span>
+                </div>
+                <p>{{ stop.note or stop.location.notes or "No note yet." }}</p>
+                <div class="appearance-meta">
+                    <a class="text-link" href="/locations/{{ stop.location.id }}">Open location</a>
+                    <span>{{ stop.location.country or stop.location.region or "No region yet" }}</span>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state compact">
+            <h3>No route stops yet</h3>
+            <p>Add saved locations and the atlas map will draw this route from those place records.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -2,49 +2,62 @@
 
 ## Project summary
 
-Someday Atlas is a private homelab application for turning YouTube travel videos into a shared travel-dream map.
+Someday Atlas is a private homelab app for building a shared travel-dream map around places first.
 
-The app is designed for people who watch travel videos together on a TV and want to casually capture places, moments, and ideas from those videos using their phones. Over time, the captured places become pins on a map. Videos can become journeys, where multiple pins are connected with lines in the order they appear in the video.
+The core object is no longer the video. The core object is the saved place. Root locations anchor the atlas, child locations add useful specificity, and videos act as supporting source material that can be attached to places when needed.
 
 This is not a serious travel-planning tool. It is a cozy private atlas for travel dreaming.
 
 ## Core idea
 
-A YouTube travel video can be represented as a journey.
+A root location is the anchor for a region of the atlas.
 
-A journey contains stops.
+Child locations let that root place expand into useful detail.
 
-A stop is a place shown or mentioned in the video.
+Videos can be linked to locations as appearances.
 
-Stops are shown as pins on a map.
+Journeys can be rooted at locations and connected to saved places in order.
 
-Stops from the same journey are connected with lines.
+Pins on the map represent saved places.
+
+Lines on the map represent journeys, whether they come from the older video-owned model or the newer place-owned model.
 
 Example:
 
 ```text
-Video: Two Weeks in Japan by Train
-Journey: Tokyo -> Hakone -> Kyoto -> Nara -> Osaka
+Root location: Japan
+Child locations: Tokyo, Hakone, Kyoto, Nara, Osaka
+Place-owned journey: Tokyo -> Hakone -> Kyoto -> Nara -> Osaka
+Supporting video: Two Weeks in Japan by Train
 ```
 
 On the map:
 
 ```text
+Japan anchors the cluster
 Tokyo pin -> Hakone pin -> Kyoto pin -> Nara pin -> Osaka pin
 ```
 
-Each stop may contain:
+Each saved location may contain:
 
-- Place name
+- Name
+- Kind such as city, district, hotel, port, attraction, station, or place
+- Optional parent location
 - Country or region
 - Latitude and longitude
-- Optional YouTube timestamp
 - Notes
-- Tags
-- Vote or interest rating
-- Link back to the YouTube video
+- Linked videos with optional timestamps
+- Place-owned journeys rooted at that location
 
 ## Product principles
+
+### Places first
+
+Root locations are key.
+
+When in doubt, model the atlas around places instead of videos.
+
+Videos are useful evidence and source material, but they should not dictate the primary information architecture.
 
 ### Keep the capture flow lightweight
 
@@ -62,22 +75,24 @@ Detailed editing, geocoding, route ordering, tagging, and cleanup can happen lat
 
 ### Manual first
 
-The first version should use manual video entry.
+The first version should use manual entry and simple helpers.
 
-Do not depend on YouTube history, Google Takeout, transcript parsing, AI video parsing, or automatic place extraction for the MVP.
+Do not depend on YouTube history, Google Takeout, transcript parsing, AI video parsing, or automatic place extraction for core functionality.
 
 The first version should work when a user manually adds:
 
-- YouTube URL
-- Video title
-- Journey name
-- Stops
-- Notes
-- Optional timestamps
+- A root location
+- Child locations
+- A saved video
+- A location appearance linking a video to a place
+- A place-owned journey
+- Optional timestamps and notes
 
 ### Make it private and local
 
 This is a homelab project. It should be designed to run locally, preferably behind a private network or VPN.
+
+Everything should work in containers and fit naturally into a Docker network.
 
 Avoid external dependencies unless they add clear value and are easy to replace.
 
@@ -89,95 +104,90 @@ The tone of the app should be playful, personal, and low-pressure.
 
 The goal is not to optimize vacations. The goal is to preserve and explore shared travel dreams.
 
-## MVP scope
+## Current backbone
 
-The first usable version should support the following features.
+The current app supports two route models in parallel.
 
-### 1. Add a video manually
+- Legacy: `video -> journey -> stop`
+- Current direction: `root location -> child locations / video appearances / place-owned journeys`
 
-Users can create a video record with:
+New work should prefer the places-first model unless there is a specific reason to maintain or extend the legacy path.
 
-- YouTube URL
-- Title
-- Channel name, optional
-- Notes, optional
+## Current MVP scope
 
-The app should extract the YouTube video ID from the URL when possible.
+The current usable version should support the following features.
 
-### 2. Create a journey for a video
+### 1. Create root locations manually
 
-For the MVP, each video can have one journey.
+Users can create top-level locations such as cities, islands, ports, regions, or other anchor places.
 
-A journey should have:
+Each root location should support:
 
 - Name
-- Description, optional
-- Associated video
+- Kind
+- Country
+- Region
+- Latitude and longitude
+- Optional notes
 
-Example:
+### 2. Add child locations manually
+
+Users can add nested locations beneath a root location.
+
+Examples:
 
 ```text
-Journey name: Japan by Train
-Video: Two Weeks in Japan by Train
+Japan
+  Tokyo
+    Shinjuku
+    Hotel Gracery
 ```
 
-### 3. Add stops manually
+This hierarchy should stay lightweight. It is fine to start broad and refine later.
 
-Users can add stops to a journey.
+### 3. Link videos to places
 
-A stop should have:
+Users can save a YouTube video manually and attach it to one or more locations as an appearance.
 
-- Place name
-- Latitude
-- Longitude
-- Order index
+A video appearance may contain:
+
+- The saved video
 - Optional timestamp
 - Optional note
+- Optional order hint
 
-Coordinates can be entered manually in the first version.
+The video is supporting context for the place, not the container for the entire atlas.
 
-A later version may add geocoding by place name.
+### 4. Create place-owned journeys
 
-### 4. Show pins on a map
+Users can create a journey rooted at a location and add saved locations as ordered stops.
 
-The map should display all stops as pins.
+The order should reflect the story or route being imagined, not necessarily the optimal real-world path.
 
-Clicking a pin should show:
+### 5. Show places and routes on a map
 
-- Place name
-- Journey name
-- Video title
-- Note
-- Timestamp, if available
-- Link to the YouTube video
+The map should display saved locations as pins.
 
-### 5. Connect journey stops with lines
+The map should render both:
 
-Stops from the same journey should be connected by a line in `order_index` order.
+- legacy video-owned journeys
+- current place-owned journeys
 
-The line represents the story or route of the video, not necessarily the optimal travel route.
+Clicking a pin should show place information plus any relevant linked source material.
 
-If a video jumps from Tokyo to Kyoto and then back to Tokyo, the map should show exactly that order.
+### 6. Keep mobile capture simple
 
-### 6. Open YouTube at timestamp
+The capture page should remain fast and phone-friendly.
 
-If a stop has a timestamp, the app should generate a YouTube timestamp link.
+Capture events should be allowed to stay messy until later review.
 
-Example:
-
-```text
-https://www.youtube.com/watch?v=<video_id>&t=1930s
-```
-
-If no timestamp is provided, the app should link to the normal video URL.
-
-## Recommended MVP technology
+## Recommended technology
 
 A simple Python-based stack is preferred.
 
 Recommended stack:
 
-- Python 3.10.12
+- Python
 - FastAPI
 - SQLite
 - SQLModel or SQLAlchemy
@@ -187,41 +197,119 @@ Recommended stack:
 - OpenStreetMap tiles
 - Docker Compose for local hosting
 
-Avoid React for the first version unless frontend practice is an explicit goal.
-
-The app should be easy to run locally.
+Avoid React unless frontend experimentation is an explicit goal.
 
 ## Suggested project structure
 
 ```text
-someday_atlas/
+someday-atlas/
   app/
     main.py
     database.py
     models.py
     routers/
-      videos.py
-      journeys.py
-      stops.py
-      map.py
+      web.py
+      api.py
     services/
-      youtube_url_service.py
+      geocoding_service.py
+      location_service.py
       map_payload_service.py
+      youtube_url_service.py
     templates/
       base.html
       index.html
-      videos_new.html
-      journey_detail.html
+      locations_index.html
+      location_detail.html
+      location_edit.html
+      location_child_new.html
+      location_appearance_new.html
+      location_journey_new.html
+      location_journey_detail.html
       map.html
+      capture.html
+      videos_new.html
+      video_detail.html
+      journey_detail.html
     static/
       app.css
       map.js
+  docs/
   tests/
   docker-compose.yml
   README.md
+  .github/
+    copilot-instructions.md
 ```
 
-## Suggested database model
+## Suggested data model
+
+### locations
+
+Stores the main atlas entities.
+
+Fields:
+
+```text
+id
+name
+kind
+parent_location_id
+country
+region
+latitude
+longitude
+notes
+created_at
+updated_at
+```
+
+### video_location_appearances
+
+Stores links between saved videos and saved locations.
+
+Fields:
+
+```text
+id
+video_id
+location_id
+timestamp_seconds
+order_index
+note
+created_at
+updated_at
+```
+
+### location_journeys
+
+Stores journeys rooted at a location.
+
+Fields:
+
+```text
+id
+root_location_id
+name
+description
+created_at
+updated_at
+```
+
+### location_journey_stops
+
+Stores ordered saved-location stops inside a place-owned journey.
+
+Fields:
+
+```text
+id
+journey_id
+location_id
+order_index
+note
+created_at
+updated_at
+```
 
 ### videos
 
@@ -240,107 +328,11 @@ created_at
 updated_at
 ```
 
-### journeys
+### Legacy compatibility tables
 
-Stores a journey associated with a video.
+The legacy `journeys` and `stops` tables still exist and still render on the map.
 
-Fields:
-
-```text
-id
-video_id
-name
-description
-created_at
-updated_at
-```
-
-### stops
-
-Stores mapped stops for a journey.
-
-Fields:
-
-```text
-id
-journey_id
-place_name
-country
-region
-latitude
-longitude
-order_index
-timestamp_seconds
-note
-created_at
-updated_at
-```
-
-### tags
-
-Optional for the first version, but useful soon after.
-
-Fields:
-
-```text
-id
-name
-```
-
-Example tags:
-
-```text
-food
-train-friendly
-old-town
-cozy
-nature
-beach
-mountains
-luxury
-low-stress
-crowded
-too-hot
-walking-heavy
-lottery-only
-actually-possible
-```
-
-### stop_tags
-
-Optional many-to-many table between stops and tags.
-
-Fields:
-
-```text
-stop_id
-tag_id
-```
-
-### votes
-
-Optional for a later version.
-
-Fields:
-
-```text
-id
-stop_id
-voter_name
-rating
-note
-created_at
-```
-
-Possible ratings:
-
-```text
-must_go
-would_go
-maybe
-lottery_only
-nope
-```
+They should be treated as compatibility paths during the transition rather than the preferred backbone for new product thinking.
 
 ## Important routes
 
@@ -348,66 +340,46 @@ nope
 
 ```text
 GET  /
-GET  /map
+GET  /locations
+POST /locations
+GET  /locations/{location_id}
+GET  /locations/{location_id}/edit
+POST /locations/{location_id}/edit
+GET  /locations/{location_id}/children/new
+POST /locations/{location_id}/children
+GET  /locations/{location_id}/appearances/new
+POST /locations/{location_id}/appearances
+GET  /locations/{location_id}/journeys/new
+POST /locations/{location_id}/journeys
+GET  /location-journeys/{journey_id}
+POST /location-journeys/{journey_id}/stops
 GET  /videos/new
 POST /videos
 GET  /videos/{video_id}
-GET  /journeys/{journey_id}
-POST /journeys
-POST /journeys/{journey_id}/stops
+GET  /capture
+POST /capture
+GET  /map
 ```
 
 ### API routes
 
 ```text
+GET /api/map
 GET /api/map/journeys
 GET /api/journeys/{journey_id}/stops
 ```
 
-The map API should return journey data in a shape that is easy for Leaflet to render.
+The map API should return a combined payload that can represent:
 
-Example:
-
-```json
-{
-  "journeys": [
-    {
-      "id": 1,
-      "name": "Japan by Train",
-      "video_title": "Two Weeks in Japan by Train",
-      "youtube_url": "https://www.youtube.com/watch?v=abc123",
-      "stops": [
-        {
-          "id": 1,
-          "place_name": "Tokyo",
-          "latitude": 35.6762,
-          "longitude": 139.6503,
-          "order_index": 1,
-          "timestamp_seconds": 200,
-          "note": "Food alleys looked amazing"
-        },
-        {
-          "id": 2,
-          "place_name": "Kyoto",
-          "latitude": 35.0116,
-          "longitude": 135.7681,
-          "order_index": 2,
-          "timestamp_seconds": 1930,
-          "note": "Old streets and temples"
-        }
-      ]
-    }
-  ]
-}
-```
+- saved locations
+- legacy video journeys
+- place-owned journeys
 
 ## Mobile capture mode
 
 Mobile capture is important because the app is likely to be used while watching YouTube on a TV.
 
-However, the very first MVP can start with manual video and stop entry.
-
-The next step should be a simple phone-friendly capture page.
+Capture should stay deliberately lightweight.
 
 ### Capture event concept
 
@@ -426,11 +398,11 @@ SO: that train station looked cozy
 
 A capture event can later be processed into:
 
-- A stop
-- A note on a stop
-- A tag
-- A vote
-- A warning or nope moment
+- A root location idea
+- A child location
+- A note on a location
+- A linked video appearance
+- A tag or vote later
 - Nothing, if it was just noise
 
 ### Suggested capture event fields
@@ -460,74 +432,17 @@ note
 
 Do not require explicit watch sessions.
 
-Instead, capture events should simply exist as timestamped observations.
-
-Later, the app can group events that happened around the same time.
+Capture events should simply exist as timestamped observations that can be sorted out later.
 
 ## Future versions
 
-### Google Takeout import
+### Better reconciliation between videos and places
 
-A future version should support importing YouTube watch history from Google Takeout.
+A future version may import YouTube watch history from Google Takeout and suggest likely matches between capture events and saved videos.
 
-This would allow the app to infer which videos were watched around the same time as phone capture events.
+This should always be reviewable by the user.
 
-The idea:
-
-```text
-Phone capture event:
-20:17 - "Osaka food market looked amazing"
-
-Google Takeout watch history:
-20:02 - watched "Japan by Train - 14 Days"
-
-Someday Atlas inference:
-The note probably belongs to that video.
-```
-
-This should be treated as batch reconciliation, not live sync.
-
-The app should allow a user to upload or place a Google Takeout export file into an import folder, then parse YouTube watch history from it.
-
-Possible workflow:
-
-```text
-1. User exports YouTube history from Google Takeout.
-2. User uploads or copies the export into Someday Atlas.
-3. App imports watch history items.
-4. App compares watch times with capture events.
-5. App suggests likely video matches.
-6. User confirms or corrects the matches.
-```
-
-Suggested future table:
-
-```text
-watch_history_items
-  id
-  watched_at
-  youtube_id
-  title
-  channel_name
-  source
-  imported_at
-```
-
-Possible matching rule:
-
-```text
-For each capture event, find the most recent watched video before the capture time within a configurable time window.
-```
-
-Suggested initial matching window:
-
-```text
-2 hours
-```
-
-The matching result should always be reviewable by the user.
-
-Do not silently attach capture events to videos without a way to correct them.
+Do not silently attach capture events to videos or places without a correction path.
 
 ### Automatic metadata enrichment
 
@@ -540,73 +455,23 @@ A future version may use the YouTube Data API only for metadata enrichment, such
 
 The app should not require YouTube API access for core functionality.
 
-### Geocoding
+### Better geocoding and image support
 
-A future version may support place-name geocoding.
+The app may expand its place-name geocoding helpers and later support uploaded per-place images.
 
-Example:
-
-```text
-Kyoto, Japan -> latitude and longitude
-```
-
-The app should keep manual coordinate entry as a fallback.
+Manual coordinates and local fallback imagery should remain valid.
 
 ### Capture clustering
 
-A future version may group capture events by time proximity.
-
-Example rule:
-
-```text
-If two capture events happen within 45 minutes of each other, suggest that they belong to the same cluster.
-```
-
-Clusters should be editable.
-
-Users should be able to:
-
-- Merge clusters
-- Split clusters
-- Move events between clusters
-- Attach a cluster to a video
-- Leave a cluster unassigned
+A future version may group capture events by time proximity and suggest likely place or video relationships.
 
 ### Couple voting
 
-A future version may allow multiple people to vote on destinations or stops.
-
-Example:
-
-```text
-HH: must_go
-SO: would_go
-```
-
-The map could later filter by:
-
-- Both like it
-- One person likes it
-- Lottery only
-- Nope
-- Actually possible
+A future version may allow multiple people to vote on destinations, neighborhoods, hotels, or stops.
 
 ### Dream trip generation
 
-A future version may generate fantasy trips from saved places.
-
-Possible modes:
-
-```text
-Cozy rainy train trip
-Food and old towns
-Lottery luxury
-Nature without suffering
-Beach but not influencer hell
-We are tired adults, be gentle
-```
-
-The first version of this should be rule-based and use saved tags and votes.
+A future version may generate fantasy trips from saved places using rules, tags, and votes.
 
 No AI is required.
 
@@ -616,8 +481,6 @@ AI video parsing is explicitly out of scope for normal development.
 
 Treat this as a lottery-win feature only.
 
-The app should be useful and enjoyable without AI.
-
 ## Non-goals
 
 Do not build these for the MVP:
@@ -626,7 +489,6 @@ Do not build these for the MVP:
 - Transcript parsing
 - Automatic place extraction
 - Flight search
-- Hotel search
 - Booking integrations
 - Budget planning
 - Multi-user account system
@@ -635,30 +497,29 @@ Do not build these for the MVP:
 - Complex recommendation engine
 - 3D globe rendering
 
-## First weekend target
+## Current demo target
 
-By the end of the first weekend, the app should be able to do this:
-
-```text
-1. Add a YouTube video manually.
-2. Create a journey for the video.
-3. Add several stops manually with coordinates.
-4. Display the stops as pins on a map.
-5. Connect stops from the same journey with lines.
-6. Click a pin to see the stop note and YouTube link.
-```
-
-A successful first demo could be:
+The current app should be able to do this:
 
 ```text
-Video: Two Weeks in Japan by Train
-Stops: Tokyo, Hakone, Kyoto, Nara, Osaka
-Map: pins connected by a journey line
-Interaction: click Kyoto -> see note -> open YouTube timestamp
+1. Create a root location manually.
+2. Add child locations under it.
+3. Save a YouTube video manually.
+4. Attach that video to one or more saved places.
+5. Create a place-owned journey rooted at a location.
+6. Open the map and see saved locations plus rendered route lines.
 ```
 
-That is enough to prove the idea.
+A good current demo looks like this:
+
+```text
+Root location: Japan
+Child locations: Tokyo, Hakone, Kyoto, Nara, Osaka
+Supporting video: Two Weeks in Japan by Train
+Place-owned journey: Tokyo -> Hakone -> Kyoto -> Nara -> Osaka
+Map: saved places as pins, route as a line, source video linked from relevant places
+```
 
 ## Guiding sentence
 
-Someday Atlas is a private map of places discovered while travel-dreaming through YouTube, where pins are memories and lines are journeys.
+Someday Atlas is a private map of places discovered while travel-dreaming, where root locations anchor the atlas, pins hold memories, and journeys connect the places that matter.
