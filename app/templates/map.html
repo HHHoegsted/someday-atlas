@@ -1,14 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="section-header">
-    <div>
-        <p class="eyebrow">Atlas</p>
-        <h1>Journey map</h1>
-    </div>
-</section>
-
-<section class="map-shell">
+<section class="map-shell map-shell-expanded">
     <div id="journey-map" data-map-payload='{{ map_payload|tojson }}'></div>
     <aside class="map-sidebar">
         <h2>What shows up here</h2>
