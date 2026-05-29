@@ -68,7 +68,7 @@ def _load_location_journey_or_404(session: Session, journey_id: int) -> Location
         select(LocationJourney)
         .where(LocationJourney.id == journey_id)
         .options(
-            selectinload(LocationJourney.root_location),
+            selectinload(LocationJourney.start_location),
             selectinload(LocationJourney.stops).selectinload(LocationJourneyStop.location),
         )
     )
@@ -90,6 +90,17 @@ def _load_capture_or_404(session: Session, capture_id: int) -> CaptureEvent:
     return capture_event
 
 
+def _list_location_membership_journeys(session: Session, location_id: int) -> list[LocationJourney]:
+    statement = (
+        select(LocationJourney)
+        .join(LocationJourneyStop, LocationJourneyStop.journey_id == LocationJourney.id)
+        .where(LocationJourneyStop.location_id == location_id)
+        .options(selectinload(LocationJourney.stops).selectinload(LocationJourneyStop.location))
+        .order_by(LocationJourney.created_at.desc())
+    )
+    return list(session.exec(statement).unique())
+
+
 def _parse_optional_float(value: str) -> float | None:
     normalized = value.strip()
     return float(normalized) if normalized else None
@@ -108,7 +119,6 @@ def home(request: Request, session: Session = Depends(get_session)):
         .options(
             selectinload(Location.children),
             selectinload(Location.video_appearances),
-            selectinload(Location.root_journeys),
         )
         .order_by(Location.name.asc())
     )
@@ -117,7 +127,6 @@ def home(request: Request, session: Session = Depends(get_session)):
     recent_location_journeys_statement = (
         select(LocationJourney)
         .options(
-            selectinload(LocationJourney.root_location),
             selectinload(LocationJourney.stops).selectinload(LocationJourneyStop.location),
         )
         .order_by(LocationJourney.created_at.desc())
@@ -134,7 +143,6 @@ def home(request: Request, session: Session = Depends(get_session)):
     recent_videos = list(session.exec(recent_videos_statement))
 
     total_appearances = sum(len(location.video_appearances) for location in root_locations)
-    total_root_journeys = sum(len(location.root_journeys) for location in root_locations)
     return templates.TemplateResponse(
         request,
         "index.html",
@@ -143,7 +151,6 @@ def home(request: Request, session: Session = Depends(get_session)):
             "recent_location_journeys": recent_location_journeys,
             "recent_videos": recent_videos,
             "total_appearances": total_appearances,
-            "total_root_journeys": total_root_journeys,
             "hide_global_header": True,
             "page_title": "Someday Atlas",
         },
@@ -274,13 +281,7 @@ def location_detail(request: Request, location_id: int, session: Session = Depen
             appearance.video.title.lower() if appearance.video else "",
         ),
     )
-    root_journey_statement = (
-        select(LocationJourney)
-        .where(LocationJourney.root_location_id == location.id)
-        .options(selectinload(LocationJourney.stops).selectinload(LocationJourneyStop.location))
-        .order_by(LocationJourney.created_at.desc())
-    )
-    root_journeys = list(session.exec(root_journey_statement))
+    membership_journeys = _list_location_membership_journeys(session, location.id)
     return templates.TemplateResponse(
         request,
         "location_detail.html",
@@ -290,7 +291,7 @@ def location_detail(request: Request, location_id: int, session: Session = Depen
             "breadcrumb": breadcrumb,
             "child_locations": child_locations,
             "direct_appearances": direct_appearances,
-            "root_journeys": root_journeys,
+            "membership_journeys": membership_journeys,
         },
     )
 
@@ -345,16 +346,7 @@ def new_location_appearance_page(request: Request, location_id: int, session: Se
 @router.get("/locations/{location_id}/journeys/new")
 def new_location_journey_page(request: Request, location_id: int, session: Session = Depends(get_session)):
     location = _load_location_or_404(session, location_id)
-    breadcrumb = build_location_breadcrumb(session, location)
-    return templates.TemplateResponse(
-        request,
-        "location_journey_new.html",
-        {
-            "page_title": f"Create journey for {location.name}",
-            "location": location,
-            "breadcrumb": breadcrumb,
-        },
-    )
+    return RedirectResponse(url=f"/location-journeys/new?location_id={location.id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/locations/{location_id}/children")
@@ -420,8 +412,63 @@ def create_location_journey(
     session: Session = Depends(get_session),
 ):
     location = _load_location_or_404(session, location_id)
+    return RedirectResponse(
+        url=f"/location-journeys/new?location_id={location.id}&name={name.strip()}&description={description.strip()}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.get("/location-journeys")
+def location_journeys_index(request: Request, session: Session = Depends(get_session)):
+    statement = (
+        select(LocationJourney)
+        .options(selectinload(LocationJourney.stops).selectinload(LocationJourneyStop.location))
+        .order_by(LocationJourney.created_at.desc())
+    )
+    journeys = list(session.exec(statement))
+    return templates.TemplateResponse(
+        request,
+        "location_journeys_index.html",
+        {
+            "page_title": "Journeys",
+            "journeys": journeys,
+        },
+    )
+
+
+@router.get("/location-journeys/new")
+def new_global_location_journey_page(
+    request: Request,
+    session: Session = Depends(get_session),
+    location_id: int | None = None,
+    name: str = "",
+    description: str = "",
+):
+    selectable_locations = list(session.exec(select(Location).order_by(Location.name.asc())))
+    selected_location = session.get(Location, location_id) if location_id is not None else None
+    return templates.TemplateResponse(
+        request,
+        "location_journey_new.html",
+        {
+            "page_title": "Create journey",
+            "selectable_locations": selectable_locations,
+            "selected_location": selected_location,
+            "prefill_name": name,
+            "prefill_description": description,
+        },
+    )
+
+
+@router.post("/location-journeys")
+def create_global_location_journey(
+    name: str = Form(...),
+    description: str = Form(default=""),
+    first_location_id: int = Form(...),
+    session: Session = Depends(get_session),
+):
+    first_location = _load_location_or_404(session, first_location_id)
     journey = LocationJourney(
-        root_location_id=location.id,
+        start_location_id=first_location.id,
         name=name.strip(),
         description=description.strip() or None,
     )
@@ -431,15 +478,14 @@ def create_location_journey(
 
     first_stop = LocationJourneyStop(
         journey_id=journey.id,
-        location_id=location.id,
+        location_id=first_location.id,
         order_index=1,
-        note="Journey anchor",
+        note=None,
     )
     session.add(first_stop)
-    location.updated_at = utcnow()
-    session.add(location)
+    first_location.updated_at = utcnow()
+    session.add(first_location)
     session.commit()
-
     return RedirectResponse(url=f"/location-journeys/{journey.id}", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -449,9 +495,7 @@ def location_journey_detail(request: Request, journey_id: int, session: Session 
     ordered_stops = sorted(journey.stops, key=lambda stop: stop.order_index)
     selectable_locations = list(
         session.exec(
-            select(Location)
-            .where(Location.latitude.is_not(None), Location.longitude.is_not(None))
-            .order_by(Location.name.asc())
+            select(Location).order_by(Location.name.asc())
         )
     )
     return templates.TemplateResponse(
@@ -787,7 +831,7 @@ def map_view(request: Request, session: Session = Depends(get_session)):
     location_journey_statement = (
         select(LocationJourney)
         .options(
-            selectinload(LocationJourney.root_location),
+            selectinload(LocationJourney.start_location),
             selectinload(LocationJourney.stops).selectinload(LocationJourneyStop.location),
         )
         .order_by(LocationJourney.created_at.desc())

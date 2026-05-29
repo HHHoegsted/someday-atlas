@@ -61,7 +61,7 @@ def _load_map_location_journeys(session: Session) -> list[LocationJourney]:
     statement = (
         select(LocationJourney)
         .options(
-            selectinload(LocationJourney.root_location),
+            selectinload(LocationJourney.start_location),
             selectinload(LocationJourney.stops).selectinload(LocationJourneyStop.location),
         )
         .order_by(LocationJourney.created_at.desc())

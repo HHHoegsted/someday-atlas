@@ -16,18 +16,18 @@ Child locations let that root place expand into useful detail.
 
 Videos can be linked to locations as appearances.
 
-Journeys can be rooted at locations and connected to saved places in order.
+Journeys can be assembled from saved places in order.
 
 Pins on the map represent saved places.
 
-Lines on the map represent journeys, whether they come from the older video-owned model or the newer place-owned model.
+Lines on the map represent journeys, whether they come from the older video-owned model or the newer saved-place model.
 
 Example:
 
 ```text
 Root location: Japan
 Child locations: Tokyo, Hakone, Kyoto, Nara, Osaka
-Place-owned journey: Tokyo -> Hakone -> Kyoto -> Nara -> Osaka
+Journey: Tokyo -> Hakone -> Kyoto -> Nara -> Osaka
 Supporting video: Two Weeks in Japan by Train
 ```
 
@@ -47,7 +47,7 @@ Each saved location may contain:
 - Latitude and longitude
 - Notes
 - Linked videos with optional timestamps
-- Place-owned journeys rooted at that location
+- Journeys that include that location
 
 ## Product principles
 
@@ -85,7 +85,7 @@ The first version should work when a user manually adds:
 - Child locations
 - A saved video
 - A location appearance linking a video to a place
-- A place-owned journey
+- A journey
 - Optional timestamps and notes
 
 ### Make it private and local
@@ -109,7 +109,7 @@ The goal is not to optimize vacations. The goal is to preserve and explore share
 The current app supports two route models in parallel.
 
 - Legacy: `video -> journey -> stop`
-- Current direction: `root location -> child locations / video appearances / place-owned journeys`
+- Current direction: `root location -> child locations / video appearances / journeys`
 
 New work should prefer the places-first model unless there is a specific reason to maintain or extend the legacy path.
 
@@ -158,9 +158,9 @@ A video appearance may contain:
 
 The video is supporting context for the place, not the container for the entire atlas.
 
-### 4. Create place-owned journeys
+### 4. Create journeys from saved locations
 
-Users can create a journey rooted at a location and add saved locations as ordered stops.
+Users can create a journey from saved locations and add saved locations as ordered stops.
 
 The order should reflect the story or route being imagined, not necessarily the optimal real-world path.
 
@@ -171,7 +171,7 @@ The map should display saved locations as pins.
 The map should render both:
 
 - legacy video-owned journeys
-- current place-owned journeys
+- current journeys built from saved locations
 
 Clicking a pin should show place information plus any relevant linked source material.
 
@@ -282,7 +282,7 @@ updated_at
 
 ### location_journeys
 
-Stores journeys rooted at a location.
+Stores journeys built from saved locations.
 
 Fields:
 
@@ -297,7 +297,7 @@ updated_at
 
 ### location_journey_stops
 
-Stores ordered saved-location stops inside a place-owned journey.
+Stores ordered saved-location stops inside a journey.
 
 Fields:
 
@@ -373,7 +373,7 @@ The map API should return a combined payload that can represent:
 
 - saved locations
 - legacy video journeys
-- place-owned journeys
+- journeys built from saved locations
 
 ## Mobile capture mode
 
@@ -506,7 +506,7 @@ The current app should be able to do this:
 2. Add child locations under it.
 3. Save a YouTube video manually.
 4. Attach that video to one or more saved places.
-5. Create a place-owned journey rooted at a location.
+5. Create a journey from saved locations.
 6. Open the map and see saved locations plus rendered route lines.
 ```
 
@@ -516,7 +516,7 @@ A good current demo looks like this:
 Root location: Japan
 Child locations: Tokyo, Hakone, Kyoto, Nara, Osaka
 Supporting video: Two Weeks in Japan by Train
-Place-owned journey: Tokyo -> Hakone -> Kyoto -> Nara -> Osaka
+Journey: Tokyo -> Hakone -> Kyoto -> Nara -> Osaka
 Map: saved places as pins, route as a line, source video linked from relevant places
 ```
 

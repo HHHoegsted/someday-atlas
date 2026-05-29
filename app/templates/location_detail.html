@@ -88,17 +88,17 @@
     <div class="timeline-shell">
         <div class="section-header narrow compact location-section-gap">
             <div>
-                <h2>Journeys rooted here</h2>
+                <h2>Journeys using this place</h2>
             </div>
         </div>
         <div class="location-list">
-            <a class="compact-list-card add-card compact-list-link-card" href="/locations/{{ location.id }}/journeys/new">
+            <a class="compact-list-card add-card compact-list-link-card" href="/location-journeys/new?location_id={{ location.id }}">
                 <div class="compact-list-copy">
-                    <h3>Create a place-owned journey</h3>
-                    <p>Start a reusable route rooted at {{ location.name }}</p>
+                    <h3>Collect this place into a journey</h3>
+                    <p>Start a route from saved locations, beginning with {{ location.name }}</p>
                 </div>
             </a>
-            {% for journey in root_journeys %}
+            {% for journey in membership_journeys %}
             <a class="compact-list-card" href="/location-journeys/{{ journey.id }}">
                 <div class="compact-list-copy">
                     <h3>{{ journey.name }}</h3>
