@@ -9,8 +9,8 @@ The older video-owned journey flow still exists, but the product direction is no
 - Root locations are the main anchors of the atlas.
 - Child locations let a place expand into neighborhoods, hotels, ports, stations, and attractions.
 - Videos can be linked to places as appearances with optional timestamps.
-- Place-owned journeys can be rooted at a location and built from saved locations.
-- The map renders both legacy video journeys and the newer place-owned journeys.
+- Journeys can be assembled from saved locations.
+- The map renders both legacy video journeys and the newer journeys built from saved locations.
 
 ## MVP stack
 
@@ -44,7 +44,7 @@ This keeps the app containerized from the start and makes it easy to attach a re
 3. Search for a place with the geocoding helper and use it to fill name, country, region, and coordinates
 4. Save a video at `/videos/new` when you want source material in the atlas
 5. Attach that video to a location from the location detail flow
-6. Create a place-owned journey rooted at a saved location
+6. Create a journey from saved locations
 7. Open `/map` to see saved places and rendered route lines
 8. Use `/capture` on a phone for form-only quick raw notes during a watch session, or on desktop for a slimmer capture form plus recent capture history and optional place attachment
 
@@ -56,13 +56,13 @@ The app now has a place-first atlas model alongside the older video-owned journe
 - `GET /locations/{location_id}` shows a location, its child locations, and all linked video appearances across that location subtree.
 - `POST /locations/{location_id}/children` adds nested locations without forcing you to model every detail upfront.
 - `POST /locations/{location_id}/appearances` attaches saved videos and optional timestamps to a location.
-- `POST /locations/{location_id}/journeys` creates a place-owned journey rooted at that location.
+- `POST /location-journeys` creates a journey from saved locations.
 
 The atlas supports two route models in parallel.
 
 - The old `video -> journey -> stop` flow still works.
-- The preferred place-owned route flow lets you create `LocationJourney` records rooted at a location and add saved locations as ordered route stops.
-- The map now renders both legacy video journeys and place-owned journeys from saved locations.
+- The preferred route flow lets you create `LocationJourney` records from saved locations and add ordered route stops.
+- The map now renders both legacy video journeys and journeys from saved locations.
 
 ## Root locations matter
 

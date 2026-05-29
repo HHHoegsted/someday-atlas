@@ -84,7 +84,7 @@ def _serialize_location_journeys(location_journeys: list[LocationJourney]) -> li
                 "name": journey.name,
                 "description": journey.description,
                 "journey_type": "location",
-                "source_label": journey.root_location.name,
+                "source_label": serialized_stops[0]["place_name"] if serialized_stops else "Saved places",
                 "video_title": None,
                 "detail_url": f"/location-journeys/{journey.id}",
                 "youtube_url": None,

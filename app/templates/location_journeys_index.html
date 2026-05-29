@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="location-stack">
+    <div class="timeline-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <h2>Journeys</h2>
+            </div>
+        </div>
+        <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/location-journeys/new">
+                <div class="compact-list-copy">
+                    <h3>Create a journey</h3>
+                    <p>Collect saved places into a new route</p>
+                </div>
+            </a>
+            {% for journey in journeys %}
+            <a class="compact-list-card" href="/location-journeys/{{ journey.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ journey.name }}</h3>
+                    <p>{{ journey.stops|length }} saved places{% if journey.description %} · {{ journey.description }}{% endif %}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -29,7 +29,7 @@ In practice:
 - root locations are the anchor points of the atlas
 - child locations add useful specificity under those anchors
 - videos are linked to places as appearances
-- place-owned journeys are rooted at locations and built from saved locations
+- journeys are built from saved locations
 - the map renders both locations and route lines
 
 The older `video -> journey -> stop` model still exists for compatibility, but new product thinking should start from places.
@@ -69,7 +69,7 @@ This lets a place collect supporting source material without making the video th
 
 ### `LocationJourney`
 
-Represents a route concept rooted at a saved location.
+Represents a route concept built from saved locations.
 
 Fields currently include:
 
@@ -79,7 +79,7 @@ Fields currently include:
 
 ### `LocationJourneyStop`
 
-Represents an ordered saved-location stop inside a place-owned journey.
+Represents an ordered saved-location stop inside a journey.
 
 Fields currently include:
 
@@ -98,9 +98,9 @@ Implemented now:
 4. Use geocoding helpers to find and fill location data
 5. Attach saved videos to a location with optional timestamp and note
 6. Aggregate appearances across a location subtree on the location detail page
-7. Create place-owned journeys rooted at a location
-8. Add saved locations as ordered stops on a place-owned journey
-9. Render legacy video journeys and place-owned journeys together on the atlas map
+7. Create journeys from saved locations
+8. Add saved locations as ordered stops on a journey
+9. Render legacy video journeys and newer journeys together on the atlas map
 10. Use a root-location-first home page instead of a video-led dashboard
 
 ## What still remains transitional
@@ -111,7 +111,7 @@ Still transitional:
 
 1. Legacy video journeys still exist in the schema and UI
 2. Some UI and route names still reflect older concepts
-3. Place-owned journeys do not yet have a richer evidence model that combines video links and captures directly on the journey itself
+3. Journeys do not yet have a richer evidence model that combines video links and captures directly on the journey itself
 
 ## Current design consequences
 
@@ -127,7 +127,7 @@ Because root locations are key, UI and product decisions should generally follow
 
 The most likely architectural next steps are:
 
-1. enrich place-owned journeys with linked evidence from videos and captures
+1. enrich journeys with linked evidence from videos and captures
 2. add better editing and reordering support for route stops
 3. decide whether legacy video-owned journeys should be retired, migrated, or left as a compatibility layer
 4. support per-place uploaded imagery while keeping a local fallback visual treatment
@@ -143,7 +143,7 @@ That means a `Tokyo` page can surface:
 - direct Tokyo video appearances
 - video appearances attached to districts and attractions under Tokyo
 - child places that make the larger place browsable
-- place-owned journeys rooted at or passing through the saved place
+- journeys that include or pass through the saved place
 
 ## Summary
 

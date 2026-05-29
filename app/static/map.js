@@ -7,7 +7,7 @@ function createPopupHtml(journey, stop) {
     const timestamp = Number.isInteger(stop.timestamp_seconds)
         ? `<p><strong>Timestamp:</strong> ${stop.timestamp_seconds}s</p>`
         : "";
-    const sourceKindLabel = journey.journey_type === "location" ? "Root location" : "Video";
+    const sourceKindLabel = journey.journey_type === "location" ? "Starts at" : "Video";
     const sourceLine = journey.source_label
         ? `<p><strong>${sourceKindLabel}:</strong> ${journey.source_label}</p>`
         : "";

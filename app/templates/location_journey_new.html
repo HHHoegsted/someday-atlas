@@ -1,52 +1,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="detail-hero split">
-    <div>
-        <p class="eyebrow">Create place-owned journey</p>
-        <h1>{{ location.name }}</h1>
-        <p class="lede">Create a reusable route rooted at this place, then return to the location page to manage the route and its stops.</p>
-        <nav class="breadcrumb-nav">
-            <a href="/locations">Locations</a>
-            {% for crumb in breadcrumb %}
-            <span>/</span>
-            {% if loop.last %}
-            <strong>Add journey for {{ crumb.name }}</strong>
-            {% else %}
-            <a href="/locations/{{ crumb.id }}">{{ crumb.name }}</a>
-            {% endif %}
-            {% endfor %}
-        </nav>
-    </div>
-    <div class="detail-meta">
-        <p><strong>Root location:</strong> {{ location.name }}</p>
-        <p><strong>Kind:</strong> {{ location.kind|title }}</p>
-        <p><a class="text-link" href="/locations/{{ location.id }}">Back to location page</a></p>
-    </div>
-</section>
-
-<section class="two-column single-focus-layout">
-    <div class="form-shell">
-        <div class="section-header narrow compact">
-            <div>
-                <p class="eyebrow">Details</p>
-                <h2>Create place-owned journey</h2>
-            </div>
+<section class="form-shell">
+    <div class="section-header narrow compact compact-form-header">
+        <div>
+            <h2>Create journey</h2>
         </div>
-        <form class="stack-form" method="post" action="/locations/{{ location.id }}/journeys">
-            <label>
-                <span>Journey name</span>
-                <input type="text" name="name" placeholder="Tokyo station-to-garden day" required>
-            </label>
-            <label>
-                <span>Description</span>
-                <textarea name="description" rows="3" placeholder="Optional route context"></textarea>
-            </label>
-            <div class="edit-actions-row">
-                <button class="button" type="submit">Create journey</button>
-                <a class="button secondary" href="/locations/{{ location.id }}">Cancel</a>
-            </div>
-        </form>
     </div>
+    <form class="stack-form" method="post" action="/location-journeys">
+        <label>
+            <span>Journey name</span>
+            <input type="text" name="name" value="{{ prefill_name }}" placeholder="Tokyo station-to-garden day" required>
+        </label>
+        <label>
+            <span>First saved place</span>
+            <select name="first_location_id" required>
+                <option value="" disabled {% if not selected_location %}selected{% endif %}>Select a saved location</option>
+                {% for location in selectable_locations %}
+                <option value="{{ location.id }}" {% if selected_location and selected_location.id == location.id %}selected{% endif %}>{{ location.name }}{% if location.country %} · {{ location.country }}{% elif location.region %} · {{ location.region }}{% endif %}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>Description</span>
+            <textarea name="description" rows="3" placeholder="Optional route context">{{ prefill_description }}</textarea>
+        </label>
+        <div class="edit-actions-row">
+            <button class="button" type="submit">Create journey</button>
+            <a class="button secondary" href="/location-journeys">Cancel</a>
+        </div>
+    </form>
 </section>
 {% endblock %}

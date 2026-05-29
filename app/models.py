@@ -87,7 +87,7 @@ class Location(SQLModel, table=True):
     children: list["Location"] = Relationship(back_populates="parent")
     video_appearances: list["VideoLocationAppearance"] = Relationship(back_populates="location")
     capture_events: list["CaptureEvent"] = Relationship(back_populates="location")
-    root_journeys: list["LocationJourney"] = Relationship(back_populates="root_location")
+    starting_journeys: list["LocationJourney"] = Relationship(back_populates="start_location")
     journey_stops: list["LocationJourneyStop"] = Relationship(back_populates="location")
 
 
@@ -107,13 +107,13 @@ class VideoLocationAppearance(SQLModel, table=True):
 
 class LocationJourney(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    root_location_id: int = Field(foreign_key="location.id", nullable=False)
+    start_location_id: int = Field(foreign_key="location.id", nullable=False)
     name: str
     description: Optional[str] = None
     created_at: datetime = Field(default_factory=utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=utcnow, nullable=False)
 
-    root_location: Location = Relationship(back_populates="root_journeys")
+    start_location: Location = Relationship(back_populates="starting_journeys")
     stops: list["LocationJourneyStop"] = Relationship(back_populates="journey")
 
 

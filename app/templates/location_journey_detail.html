@@ -3,19 +3,17 @@
 {% block content %}
 <section class="detail-hero split">
     <div>
-        <p class="eyebrow">Place-owned journey</p>
+        <p class="eyebrow">Journey</p>
         <h1>{{ journey.name }}</h1>
-        <p class="lede">{{ journey.description or "This route belongs to a location, not a video. Add saved places in the order you want the atlas to draw them." }}</p>
+        <p class="lede">{{ journey.description or "This route is collected from saved places. Add locations in the order you want the atlas to draw them." }}</p>
         <nav class="breadcrumb-nav">
-            <a href="/locations">Locations</a>
-            <span>/</span>
-            <a href="/locations/{{ journey.root_location.id }}">{{ journey.root_location.name }}</a>
+            <a href="/location-journeys">Journeys</a>
             <span>/</span>
             <strong>{{ journey.name }}</strong>
         </nav>
     </div>
     <div class="detail-meta">
-        <p><strong>Root location:</strong> {{ journey.root_location.name }}</p>
+        <p><strong>First place:</strong> {{ ordered_stops[0].location.name if ordered_stops else "Not set" }}</p>
         <p><strong>Stops:</strong> {{ ordered_stops|length }}</p>
         <p><strong>Map rendering:</strong> route line from saved locations</p>
     </div>
