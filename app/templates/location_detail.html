@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="detail-hero location-hero">
+    <div class="location-hero-art" aria-hidden="true">
+        <img src="/static/location-hero-illustration.svg" alt="" />
+    </div>
+    <a class="button secondary hero-edit-button hero-edit-corner" href="/locations/{{ location.id }}/edit">Edit place</a>
+    <div class="location-hero-copy">
+        <h1>{{ location.name }}</h1>
+        <p class="lede">{{ location.notes or "Locations now form the backbone of the atlas. Child locations and video appearances build out the useful detail over time." }}</p>
+        <nav class="breadcrumb-nav">
+            <a href="/locations">Locations</a>
+            {% for crumb in breadcrumb %}
+            <span>/</span>
+            {% if loop.last %}
+            <strong>{{ crumb.name }}</strong>
+            {% else %}
+            <a href="/locations/{{ crumb.id }}">{{ crumb.name }}</a>
+            {% endif %}
+            {% endfor %}
+        </nav>
+        {% if location.country or location.region %}
+        <div class="detail-summary" aria-label="Location summary">
+            {% if location.country %}
+            <span class="detail-pill"><strong>Country:</strong> {{ location.country }}</span>
+            {% endif %}
+            {% if location.region %}
+            <span class="detail-pill"><strong>Region:</strong> {{ location.region }}</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="location-stack">
+    <div class="timeline-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <h2>Child locations</h2>
+            </div>
+        </div>
+        <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/locations/{{ location.id }}/children/new">
+                <div class="compact-list-copy">
+                    <h3>Add a sub-location</h3>
+                    <p>Create a child place under {{ location.name }}</p>
+                </div>
+            </a>
+            {% for child in child_locations %}
+            <a class="compact-list-card" href="/locations/{{ child.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ child.name }}</h3>
+                    <p>{{ child.kind|title }}{% if child.country or child.region %} · {{ child.country or child.region }}{% endif %}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="timeline-shell">
+        <div class="section-header narrow compact location-section-gap">
+            <div>
+                <h2>Video appearances here</h2>
+            </div>
+        </div>
+        <div class="appearance-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/locations/{{ location.id }}/appearances/new">
+                <div class="compact-list-copy">
+                    <h3>Attach a video appearance</h3>
+                    <p>Link a saved video directly to this place</p>
+                </div>
+            </a>
+            {% for appearance in direct_appearances %}
+            <a class="compact-list-card" href="{{ '/videos/' ~ appearance.video.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ appearance.video.title }}</h3>
+                    <p>
+                        {% if appearance.timestamp_seconds is not none %}{{ appearance.timestamp_seconds }}s{% else %}No timestamp{% endif %}
+                        {% if appearance.note %} · {{ appearance.note }}{% elif appearance.order_index is not none %} · Order {{ appearance.order_index }}{% endif %}
+                    </p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="timeline-shell">
+        <div class="section-header narrow compact location-section-gap">
+            <div>
+                <h2>Journeys rooted here</h2>
+            </div>
+        </div>
+        <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/locations/{{ location.id }}/journeys/new">
+                <div class="compact-list-copy">
+                    <h3>Create a place-owned journey</h3>
+                    <p>Start a reusable route rooted at {{ location.name }}</p>
+                </div>
+            </a>
+            {% for journey in root_journeys %}
+            <a class="compact-list-card" href="/location-journeys/{{ journey.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ journey.name }}</h3>
+                    <p>{{ journey.stops|length }} mapped stops{% if journey.description %} · {{ journey.description }}{% endif %}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

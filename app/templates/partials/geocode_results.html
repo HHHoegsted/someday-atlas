@@ -3,7 +3,7 @@
 {% elif not query %}
 <div class="geocode-feedback">Type a place query to search for likely matches.</div>
 {% elif candidates %}
-<div class="geocode-feedback">Choose the best hit for "{{ query }}". You can still edit the values before saving the stop.</div>
+<div class="geocode-feedback">{{ (success_copy or 'Choose the best hit for "{query}". You can still edit the values before saving the stop.').format(query=query) }}</div>
 <div class="geocode-candidate-list">
     {% for candidate in candidates %}
     <article class="geocode-candidate-card">
@@ -23,6 +23,7 @@
         <button
             type="button"
             class="button secondary geocode-apply-button"
+            data-apply-context="{{ apply_context or 'stop' }}"
             data-place-name="{{ candidate.place_name }}"
             data-country="{{ candidate.country or '' }}"
             data-region="{{ candidate.region or '' }}"

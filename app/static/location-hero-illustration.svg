@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Atlas landscape illustration</title>
+  <desc id="desc">A warm travel-themed landscape with water, hills, a sun, and map-like route accents.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7dfb5"/>
+      <stop offset="55%" stop-color="#f0bf82"/>
+      <stop offset="100%" stop-color="#d98b66"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6b9d98"/>
+      <stop offset="100%" stop-color="#3b6668"/>
+    </linearGradient>
+    <linearGradient id="hillBack" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8eb0a1"/>
+      <stop offset="100%" stop-color="#56796f"/>
+    </linearGradient>
+    <linearGradient id="hillFront" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f736b"/>
+      <stop offset="100%" stop-color="#274a4f"/>
+    </linearGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="905" cy="170" r="102" fill="#fff0ce" opacity="0.9"/>
+  <circle cx="905" cy="170" r="142" fill="#fff0ce" opacity="0.22" filter="url(#soft)"/>
+
+  <path d="M0 430C108 394 183 381 289 389C404 398 455 452 554 448C676 443 762 337 891 347C1014 356 1098 442 1200 431V800H0Z" fill="url(#hillBack)"/>
+  <path d="M0 525C131 479 231 513 337 562C455 615 572 612 681 556C783 503 906 455 1018 495C1092 521 1158 581 1200 619V800H0Z" fill="url(#sea)"/>
+  <path d="M0 610C135 561 225 575 338 639C459 706 620 709 738 654C862 596 1000 553 1200 606V800H0Z" fill="url(#hillFront)"/>
+
+  <path d="M180 210C246 191 290 220 334 249C371 274 410 292 478 278C534 266 581 224 649 236C714 248 748 304 818 310C901 316 969 262 1034 230" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-dasharray="14 24" opacity="0.64"/>
+
+  <g transform="translate(290 255)">
+    <path d="M0 54C0 24 24 0 54 0S108 24 108 54C108 98 54 151 54 151S0 98 0 54Z" fill="#c85b34"/>
+    <circle cx="54" cy="54" r="21" fill="#fff4e2"/>
+  </g>
+
+  <g opacity="0.22">
+    <path d="M94 134L148 111L177 154L127 177Z" fill="#ffffff"/>
+    <path d="M1060 566L1120 545L1147 596L1088 619Z" fill="#ffffff"/>
+    <path d="M954 102L987 88L1007 118L971 134Z" fill="#ffffff"/>
+  </g>
+</svg>

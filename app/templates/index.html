@@ -1,67 +1,123 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="hero-panel">
-    <div>
-        <p class="eyebrow">Private homelab atlas</p>
-        <h1>Turn travel videos into cozy map memories.</h1>
-        <p class="lede">Add a YouTube video, give it one journey, then pin each stop in story order. The MVP stays manual on purpose so capture stays light.</p>
+<section class="location-stack">
+    <div class="timeline-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <h2>Root locations</h2>
+            </div>
+            <a class="button secondary" href="/locations">Open locations</a>
+        </div>
+        {% if root_locations %}
+        <div class="location-list">
+            {% for location in root_locations %}
+            <a class="compact-list-card" href="/locations/{{ location.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ location.name }}</h3>
+                    <p>{{ location.kind|title }}{% if location.country or location.region %} · {{ location.country or location.region }}{% endif %} · {{ location.children|length }} child places · {{ location.root_journeys|length }} journeys</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/locations">
+                <div class="compact-list-copy">
+                    <h3>Add a root location</h3>
+                    <p>Create a city, island, port, or region to anchor the atlas</p>
+                </div>
+            </a>
+        </div>
+        {% endif %}
     </div>
-    <div class="hero-stats">
-        <article>
-            <span>{{ videos|length }}</span>
-            <p>videos saved</p>
-        </article>
-        <article>
-            <span>{{ total_stops }}</span>
-            <p>stops pinned</p>
-        </article>
-        <article>
-            <span>{{ videos|selectattr('journey')|list|length }}</span>
-            <p>journeys mapped</p>
-        </article>
-    </div>
-</section>
 
-<section class="section-header">
-    <div>
-        <p class="eyebrow">Library</p>
-        <h2>Recent videos</h2>
+    <div class="timeline-shell">
+        <div class="section-header narrow compact location-section-gap">
+            <div>
+                <h2>Recent place-owned journeys</h2>
+            </div>
+            <a class="button secondary" href="/map">Open map</a>
+        </div>
+        {% if recent_location_journeys %}
+        <div class="location-list">
+            {% for journey in recent_location_journeys %}
+            <a class="compact-list-card" href="/location-journeys/{{ journey.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ journey.name }}</h3>
+                    <p>{{ journey.root_location.name }} · {{ journey.stops|length }} mapped stops{% if journey.description %} · {{ journey.description }}{% endif %}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/locations">
+                <div class="compact-list-copy">
+                    <h3>Add a place-owned journey</h3>
+                    <p>Open a location and start a route once a root place has enough structure</p>
+                </div>
+            </a>
+        </div>
+        {% endif %}
     </div>
-    <a class="button" href="/videos/new">Add a video</a>
-</section>
 
-{% if videos %}
-<section class="card-grid">
-    {% for video in videos %}
-    <article class="card">
-        <div class="card-header">
-            <p class="eyebrow">{{ video.channel_name or "Manual entry" }}</p>
-            <h3>{{ video.title }}</h3>
+    <div class="timeline-shell">
+        <div class="section-header narrow compact location-section-gap">
+            <div>
+                <h2>Recent videos</h2>
+            </div>
+            <a class="button secondary" href="/videos/new">Add a video</a>
         </div>
-        <p>{{ video.notes or "No notes yet." }}</p>
-        <div class="card-meta">
-            <span>{{ video.youtube_id or "No YouTube ID parsed" }}</span>
-            {% if video.journey %}
-            <span>{{ video.journey.stops|length }} stops</span>
-            {% else %}
-            <span>No journey yet</span>
-            {% endif %}
+        {% if recent_videos %}
+        <div class="location-list">
+            {% for video in recent_videos %}
+            <a class="compact-list-card" href="/videos/{{ video.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ video.title }}</h3>
+                    <p>{{ video.channel_name or "Manual entry" }}{% if video.journey %} · {{ video.journey.stops|length }} stops{% else %} · No legacy journey yet{% endif %}</p>
+                </div>
+            </a>
+            {% endfor %}
         </div>
-        <div class="card-actions">
-            <a href="/videos/{{ video.id }}">Open video</a>
-            {% if video.journey %}
-            <a href="/journeys/{{ video.journey.id }}">Journey</a>
-            {% endif %}
+        {% else %}
+        <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/videos/new">
+                <div class="compact-list-copy">
+                    <h3>Add a video</h3>
+                    <p>Save source material you can attach to places later</p>
+                </div>
+            </a>
         </div>
-    </article>
-    {% endfor %}
+        {% endif %}
+    </div>
+    
+    <div class="timeline-shell">
+        <div class="section-header narrow compact location-section-gap">
+            <div>
+                <h2>What this atlas wants</h2>
+            </div>
+        </div>
+        <div class="location-list">
+            <a class="compact-list-card compact-list-link-card" href="/locations">
+                <div class="compact-list-copy">
+                    <h3>Start with a root place</h3>
+                    <p>Create the big anchor location first, then nest the specific places under it.</p>
+                </div>
+            </a>
+            <a class="compact-list-card compact-list-link-card" href="/capture">
+                <div class="compact-list-copy">
+                    <h3>Capture fast notes on your phone</h3>
+                    <p>Keep the watching flow light, then clean up the structure later.</p>
+                </div>
+            </a>
+            <a class="compact-list-card compact-list-link-card" href="/map">
+                <div class="compact-list-copy">
+                    <h3>See the atlas on the map</h3>
+                    <p>Browse root places, linked appearances, and journeys in one shared view.</p>
+                </div>
+            </a>
+        </div>
+    </div>
 </section>
-{% else %}
-<section class="empty-state">
-    <h2>No travel videos yet</h2>
-    <p>Start by saving one YouTube travel video you want to remember later.</p>
-    <a class="button" href="/videos/new">Create the first video</a>
-</section>
-{% endif %}
 {% endblock %}

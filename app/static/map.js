@@ -7,15 +7,57 @@ function createPopupHtml(journey, stop) {
     const timestamp = Number.isInteger(stop.timestamp_seconds)
         ? `<p><strong>Timestamp:</strong> ${stop.timestamp_seconds}s</p>`
         : "";
+    const sourceKindLabel = journey.journey_type === "location" ? "Root location" : "Video";
+    const sourceLine = journey.source_label
+        ? `<p><strong>${sourceKindLabel}:</strong> ${journey.source_label}</p>`
+        : "";
+    const videoLink = stop.watch_url
+        ? `<a href="${stop.watch_url}" target="_blank" rel="noreferrer">Open on YouTube</a>`
+        : "";
+    const locationLink = stop.location_detail_url
+        ? `<a href="${stop.location_detail_url}">Open location</a>`
+        : "";
+    const journeyLink = journey.detail_url
+        ? `<a href="${journey.detail_url}">Open route</a>`
+        : "";
+    const links = [videoLink, locationLink, journeyLink].filter(Boolean).join(" ");
 
     return `
         <div class="popup-card">
             <strong>${placeBits}</strong>
             <p><strong>Journey:</strong> ${journey.name}</p>
-            <p><strong>Video:</strong> ${journey.video_title}</p>
+            ${sourceLine}
             ${timestamp}
             ${note}
-            <a href="${stop.watch_url}" target="_blank" rel="noreferrer">Open on YouTube</a>
+            ${links}
+        </div>
+    `;
+}
+
+function createLocationPopupHtml(location) {
+    const placeBits = [location.name, location.kind, location.country, location.region].filter(Boolean).join(" · ");
+    const note = location.notes ? `<p>${location.notes}</p>` : "";
+    const breadcrumb = (location.breadcrumb || []).length > 1
+        ? `<p><strong>Path:</strong> ${location.breadcrumb.join(" / ")}</p>`
+        : "";
+    const directVideos = (location.videos || []).slice(0, 3).map((video) => {
+        const timestamp = Number.isInteger(video.timestamp_seconds) ? ` (${video.timestamp_seconds}s)` : "";
+        return `<li><a href="${video.watch_url}" target="_blank" rel="noreferrer">${video.title}${timestamp}</a></li>`;
+    }).join("");
+    const videoList = directVideos
+        ? `<div><strong>Direct video links</strong><ul>${directVideos}</ul></div>`
+        : "";
+
+    return `
+        <div class="popup-card">
+            <strong>${placeBits}</strong>
+            ${breadcrumb}
+            <p><strong>Children:</strong> ${location.child_count}</p>
+            <p><strong>Video links here:</strong> ${location.direct_appearance_count}</p>
+            <p><strong>Video links in subtree:</strong> ${location.subtree_appearance_count}</p>
+            ${note}
+            ${videoList}
+            <a href="${location.detail_url}">Open location</a>
         </div>
     `;
 }
@@ -28,6 +70,7 @@ function renderJourneyMap() {
 
     const payload = JSON.parse(element.dataset.mapPayload || '{"journeys": []}');
     const journeys = payload.journeys || [];
+    const locations = payload.locations || [];
     const map = L.map(element, {
         scrollWheelZoom: true,
     }).setView([20, 0], 2);
@@ -37,7 +80,7 @@ function renderJourneyMap() {
         attribution: BASEMAP_ATTRIBUTION,
     }).addTo(map);
 
-    if (!journeys.length) {
+    if (!journeys.length && !locations.length) {
         return;
     }
 
@@ -71,6 +114,21 @@ function renderJourneyMap() {
                 opacity: 0.88,
             }).addTo(map);
         }
+    });
+
+    locations.forEach((location) => {
+        const point = [location.latitude, location.longitude];
+        allPoints.push(point);
+
+        L.circleMarker(point, {
+            radius: 9,
+            weight: 2,
+            color: "#0f766e",
+            fillColor: "#d9fffb",
+            fillOpacity: 0.92,
+        })
+            .bindPopup(createLocationPopupHtml(location))
+            .addTo(map);
     });
 
     if (allPoints.length === 1) {
@@ -129,18 +187,37 @@ function initializeCaptureProfiles() {
 }
 
 function initializeGeocodeApplyButtons() {
+    const fieldIdMap = {
+        stop: {
+            placeName: "stop-place-name",
+            country: "stop-country",
+            region: "stop-region",
+            latitude: "stop-latitude",
+            longitude: "stop-longitude",
+        },
+        location: {
+            placeName: "location-name",
+            country: "location-country",
+            region: "location-region",
+            latitude: "location-latitude",
+            longitude: "location-longitude",
+        },
+    };
+
     document.body.addEventListener("click", (event) => {
         const button = event.target.closest(".geocode-apply-button");
         if (!button) {
             return;
         }
 
+        const applyContext = button.dataset.applyContext || "stop";
+        const selectedFieldIds = fieldIdMap[applyContext] || fieldIdMap.stop;
         const fieldMap = {
-            placeName: document.getElementById("stop-place-name"),
-            country: document.getElementById("stop-country"),
-            region: document.getElementById("stop-region"),
-            latitude: document.getElementById("stop-latitude"),
-            longitude: document.getElementById("stop-longitude"),
+            placeName: document.getElementById(selectedFieldIds.placeName),
+            country: document.getElementById(selectedFieldIds.country),
+            region: document.getElementById(selectedFieldIds.region),
+            latitude: document.getElementById(selectedFieldIds.latitude),
+            longitude: document.getElementById(selectedFieldIds.longitude),
         };
 
         if (!fieldMap.placeName || !fieldMap.latitude || !fieldMap.longitude) {
@@ -208,8 +285,52 @@ function renderGeocodePreviewMaps() {
     });
 }
 
+function renderLocationPreviewMaps() {
+    if (typeof L === "undefined") {
+        return;
+    }
+
+    const previewMaps = document.querySelectorAll("[data-location-preview-map]");
+    previewMaps.forEach((element) => {
+        if (element.dataset.mapInitialized === "true") {
+            return;
+        }
+
+        const latitude = Number.parseFloat(element.dataset.latitude || "");
+        const longitude = Number.parseFloat(element.dataset.longitude || "");
+        if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+            return;
+        }
+
+        const map = L.map(element, {
+            attributionControl: false,
+            scrollWheelZoom: false,
+        }).setView([latitude, longitude], 10);
+
+        L.tileLayer(BASEMAP_URL, {
+            maxZoom: 19,
+            attribution: BASEMAP_ATTRIBUTION,
+        }).addTo(map);
+
+        const marker = L.circleMarker([latitude, longitude], {
+            radius: 9,
+            weight: 2,
+            color: "#0f766e",
+            fillColor: "#d9fffb",
+            fillOpacity: 0.92,
+        }).addTo(map);
+
+        if (element.dataset.label) {
+            marker.bindPopup(`<strong>${element.dataset.label}</strong>`);
+        }
+
+        element.dataset.mapInitialized = "true";
+    });
+}
+
 document.addEventListener("DOMContentLoaded", renderJourneyMap);
 document.addEventListener("DOMContentLoaded", initializeCaptureProfiles);
 document.addEventListener("DOMContentLoaded", initializeGeocodeApplyButtons);
 document.addEventListener("DOMContentLoaded", renderGeocodePreviewMaps);
+document.addEventListener("DOMContentLoaded", renderLocationPreviewMaps);
 document.body.addEventListener("htmx:afterSwap", renderGeocodePreviewMaps);
