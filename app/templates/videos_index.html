@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="location-stack">
+    <div class="timeline-shell">
+        <div class="section-header narrow compact">
+            <div>
+                <h2>Videos</h2>
+            </div>
+        </div>
+        <div class="location-list">
+            <a class="compact-list-card add-card compact-list-link-card" href="/videos/new">
+                <div class="compact-list-copy">
+                    <h3>Add a video</h3>
+                    <p>Save source material you can attach to places later</p>
+                </div>
+            </a>
+            {% for video in videos %}
+            <a class="compact-list-card" href="/videos/{{ video.id }}">
+                <div class="compact-list-copy">
+                    <h3>{{ video.title }}</h3>
+                    <p>{{ video.channel_name or "Manual entry" }}{% if video.journey %} · {{ video.journey.stops|length }} legacy stops{% endif %}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -595,8 +595,8 @@ select {
 
 .map-shell {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: 1.25rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
     min-height: 620px;
 }
 
@@ -644,6 +644,22 @@ select {
     box-shadow: none;
     border: 0;
     padding: 0 0 1rem;
+}
+
+.compact-form-header {
+    padding: 0 0 0.8rem;
+    background: transparent;
+    backdrop-filter: none;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.section-header.compact-form-header h2,
+.detail-hero.compact-hero-title h2 {
+    margin: 0;
+    font-size: 1.18rem;
+    line-height: 1.15;
 }
 
 .geocode-form {
@@ -745,14 +761,6 @@ select {
     }
 }
 
-.capture-hero {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-top: 1.5rem;
-}
-
-.capture-hint-card,
 .capture-panel,
 .capture-feed,
 .capture-card {
@@ -762,42 +770,41 @@ select {
     box-shadow: var(--shadow);
 }
 
-.capture-hint-card,
 .capture-panel,
 .capture-feed,
 .capture-card {
     border-radius: 28px;
 }
 
-.capture-hint-card,
 .capture-panel,
 .capture-feed {
     padding: 1.25rem;
 }
 
-.capture-hint-card p,
 .capture-meta,
 .capture-card-top {
     color: var(--muted);
-}
-
-.capture-hint-card ul {
-    margin: 0.75rem 0 0;
-    padding-left: 1.2rem;
-    display: grid;
-    gap: 0.55rem;
 }
 
 .capture-layout {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
 }
 
 .capture-form {
     display: grid;
     gap: 1rem;
+}
+
+.capture-desktop-intro,
+.capture-feed {
+    display: none;
+}
+
+.capture-desktop-copy {
+    margin: 0;
 }
 
 .capture-profiles {
@@ -831,7 +838,7 @@ select {
 }
 
 .capture-form textarea {
-    min-height: 8rem;
+    min-height: 10rem;
     font-size: 1.05rem;
 }
 
@@ -871,9 +878,6 @@ select {
 }
 
 .feed-header {
-    background: transparent;
-    box-shadow: none;
-    border: 0;
     padding: 0 0 1rem;
 }
 
@@ -883,6 +887,7 @@ select {
 }
 
 .capture-card {
+    position: relative;
     padding: 1rem;
 }
 
@@ -907,15 +912,52 @@ select {
     color: var(--ink);
 }
 
+.capture-card-action-row {
+    margin-top: 0.35rem;
+}
+
 @media (min-width: 900px) {
-    .capture-hero {
-        grid-template-columns: 1.2fr 0.8fr;
-        align-items: stretch;
+    .capture-layout {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
     }
 
-    .capture-layout {
-        grid-template-columns: minmax(0, 1fr) 360px;
-        align-items: start;
+    .capture-panel {
+        padding: 1rem 1.1rem;
+    }
+
+    .capture-desktop-intro,
+    .capture-feed {
+        display: block;
+    }
+
+    .capture-form {
+        gap: 0.8rem;
+    }
+
+    .capture-form textarea {
+        min-height: 5.75rem;
+        font-size: 1rem;
+    }
+
+    .capture-button {
+        width: auto;
+        min-width: 11rem;
+    }
+
+    .capture-card {
+        cursor: pointer;
+        transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    }
+
+    .capture-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(43, 122, 120, 0.28);
+        box-shadow: 0 16px 36px rgba(24, 31, 42, 0.12);
+    }
+
+    .capture-card-action-row {
+        display: none;
     }
 }
 
@@ -934,8 +976,7 @@ select {
     .card,
     .empty-state,
     .capture-panel,
-    .capture-feed,
-    .capture-hint-card {
+    .capture-feed {
         padding-left: 2rem;
         padding-right: 2rem;
     }
@@ -957,8 +998,8 @@ select {
     }
 
     .map-shell {
-        grid-template-columns: minmax(0, 1fr) 400px;
-        gap: 1.5rem;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
     }
 
     #journey-map,
@@ -972,7 +1013,7 @@ select {
     }
 
     .capture-layout {
-        grid-template-columns: minmax(0, 1.25fr) 420px;
+        grid-template-columns: minmax(0, 1fr);
         gap: 1.5rem;
     }
 }
@@ -1001,6 +1042,10 @@ select {
     .two-column,
     .map-shell {
         grid-template-columns: 1fr;
+    }
+
+    .capture-panel {
+        padding: 1rem;
     }
 
     .location-hero {

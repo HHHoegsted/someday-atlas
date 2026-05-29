@@ -1,27 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="capture-hero">
-    <div>
-        <p class="eyebrow">Mobile capture</p>
-        <h1>Fast notes while the video is still playing.</h1>
-        <p class="lede">This page is intentionally simple: tap, type a thought, save it, and get back to the TV.</p>
-    </div>
-    <div class="capture-hint-card">
-        <p>Examples</p>
-        <ul>
-            <li>Osaka food chaos yes</li>
-            <li>too crowded</li>
-            <li>that train station looked cozy</li>
-        </ul>
-    </div>
-</section>
-
 <section class="capture-layout">
-    <div class="capture-panel">
+    <div class="capture-panel capture-panel-primary">
         {% if saved %}
         <div class="flash-banner">Saved. Keep watching.</div>
         {% endif %}
+
+        <div class="capture-desktop-intro">
+            <div class="section-header narrow compact compact-form-header">
+                <div>
+                    <h2>Quick capture</h2>
+                </div>
+            </div>
+            <p class="capture-meta capture-desktop-copy">Desktop keeps the form light and places recent notes underneath it. On mobile this page stays form-only so capture stays fast.</p>
+        </div>
 
         <form class="capture-form" method="post" action="/capture">
             <label>
@@ -66,9 +59,8 @@
     </div>
 
     <aside class="capture-feed">
-        <div class="section-header narrow compact feed-header">
+        <div class="section-header narrow compact compact-form-header feed-header">
             <div>
-                <p class="eyebrow">Recent</p>
                 <h2>Latest captures</h2>
             </div>
         </div>
@@ -76,13 +68,21 @@
         {% if capture_events %}
         <div class="capture-list">
             {% for event in capture_events %}
-            <article class="capture-card">
+            <article class="capture-card" data-capture-card-url="/captures/{{ event.id }}/edit">
                 <div class="capture-card-top">
                     <span class="capture-kind">{{ event.kind }}</span>
                     <span>{{ event.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
                 </div>
                 <p class="capture-text">{{ event.raw_text }}</p>
-                <p class="capture-meta">{{ event.created_by or "Someone" }}</p>
+                {% if event.video %}
+                <p class="capture-meta">
+                    <a class="text-link" href="{{ capture_watch_urls.get(event.id) }}" target="_blank" rel="noreferrer">{{ event.video.title }}</a>
+                </p>
+                {% endif %}
+                <p class="capture-meta">{{ event.created_by or "Someone" }}{% if event.location %} · {{ event.location.name }}{% endif %}</p>
+                <p class="capture-meta capture-card-action-row">
+                    <a class="text-link" href="/captures/{{ event.id }}/edit">Add place or video link</a>
+                </p>
             </article>
             {% endfor %}
         </div>

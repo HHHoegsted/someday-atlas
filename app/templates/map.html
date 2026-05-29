@@ -3,11 +3,5 @@
 {% block content %}
 <section class="map-shell map-shell-expanded">
     <div id="journey-map" data-map-payload='{{ map_payload|tojson }}'></div>
-    <aside class="map-sidebar">
-        <h2>What shows up here</h2>
-        <p>Legacy journey stops still render as connected story lines.</p>
-        <p>Saved locations now render as their own atlas pins, including child-aware video counts and direct links back to saved videos.</p>
-        <p>If a video link has a timestamp, its popup links back to the exact moment in YouTube.</p>
-    </aside>
 </section>
 {% endblock %}
