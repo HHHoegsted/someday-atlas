@@ -5,7 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: someday-atlas-web
     ports:
-      - "8000:8000"
+      # Reserve the 8030-8039 block for Someday Atlas in the homelab.
+      - "8030:8000"
     volumes:
       - atlas_data:/data
     restart: unless-stopped

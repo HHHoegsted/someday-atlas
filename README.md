@@ -15,13 +15,15 @@ Someday Atlas is a private homelab app for turning YouTube travel videos into a 
 docker compose up --build
 ```
 
-The web app will be available at http://localhost:8000.
+The web app will be available at http://localhost:8030.
 
 ## Docker topology
 
 - Service: `atlas-web`
 - Named network: `someday-atlas-network`
 - Persistent volume: `atlas_data` mounted at `/data`
+- Reserved host port block: `8030-8039`
+- Current host port in use: `8030 -> 8000` inside the container
 
 This keeps the app containerized from the start and makes it easy to attach a reverse proxy, backup sidecar, or future services to the same Docker network.
 
