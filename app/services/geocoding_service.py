@@ -8,6 +8,7 @@ from urllib.request import Request, urlopen
 
 GEOCODING_ENDPOINT = "https://nominatim.openstreetmap.org/search"
 USER_AGENT = "SomedayAtlas/0.1 (private homelab geocoding helper)"
+GEOCODING_LANGUAGE = "en"
 
 
 def _pick_place_name(candidate: dict[str, Any]) -> str:
@@ -63,12 +64,16 @@ def search_places(query: str, limit: int = 5) -> list[dict[str, Any]]:
             "q": query.strip(),
             "format": "jsonv2",
             "addressdetails": 1,
+            "accept-language": GEOCODING_LANGUAGE,
             "limit": limit,
         }
     )
     request = Request(
         url=f"{GEOCODING_ENDPOINT}?{encoded_query}",
-        headers={"User-Agent": USER_AGENT},
+        headers={
+            "User-Agent": USER_AGENT,
+            "Accept-Language": GEOCODING_LANGUAGE,
+        },
         method="GET",
     )
 

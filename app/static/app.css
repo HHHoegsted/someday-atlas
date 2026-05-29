@@ -31,7 +31,7 @@ a {
 }
 
 .shell {
-    width: min(1180px, calc(100vw - 2rem));
+    width: min(1680px, calc(100vw - 3rem));
     margin: 0 auto;
     padding: 1rem 0 4rem;
 }
@@ -326,11 +326,20 @@ select {
     min-height: 620px;
 }
 
+.map-shell-expanded {
+    margin-top: 1.5rem;
+    min-height: calc(100vh - 8rem);
+}
+
 #journey-map {
     width: 100%;
     min-height: 620px;
     border-radius: 26px;
     overflow: hidden;
+}
+
+.map-shell-expanded #journey-map {
+    min-height: calc(100vh - 8rem);
 }
 
 .map-sidebar {
@@ -633,6 +642,82 @@ select {
     .capture-layout {
         grid-template-columns: minmax(0, 1fr) 360px;
         align-items: start;
+    }
+}
+
+@media (min-width: 1400px) {
+    .shell {
+        width: min(1840px, calc(100vw - 4rem));
+    }
+
+    .site-header,
+    .hero-panel,
+    .detail-hero,
+    .section-header,
+    .form-shell,
+    .timeline-shell,
+    .map-shell,
+    .card,
+    .empty-state,
+    .capture-panel,
+    .capture-feed,
+    .capture-hint-card {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .hero-panel {
+        grid-template-columns: 1.7fr 0.9fr;
+        gap: 2rem;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.75rem;
+    }
+
+    .detail-hero,
+    .two-column {
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 1.75rem;
+    }
+
+    .map-shell {
+        grid-template-columns: minmax(0, 1fr) 400px;
+        gap: 1.5rem;
+    }
+
+    #journey-map,
+    .map-shell {
+        min-height: 700px;
+    }
+
+    .map-shell-expanded,
+    .map-shell-expanded #journey-map {
+        min-height: calc(100vh - 7rem);
+    }
+
+    .capture-layout {
+        grid-template-columns: minmax(0, 1.25fr) 420px;
+        gap: 1.5rem;
+    }
+}
+
+@media (min-width: 1800px) {
+    .hero-panel h1,
+    .detail-hero h1,
+    .section-header h1,
+    .section-header h2 {
+        font-size: clamp(2.8rem, 3.2vw, 4.6rem);
+    }
+
+    .lede {
+        font-size: 1.12rem;
+        max-width: 66ch;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
     }
 }
 

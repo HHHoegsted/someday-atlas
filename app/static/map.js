@@ -1,3 +1,6 @@
+const BASEMAP_URL = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}";
+const BASEMAP_ATTRIBUTION = 'Tiles &copy; Esri; Sources: Esri, TomTom, Garmin, FAO, NOAA, USGS, OpenStreetMap contributors';
+
 function createPopupHtml(journey, stop) {
     const placeBits = [stop.place_name, stop.country, stop.region].filter(Boolean).join(" · ");
     const note = stop.note ? `<p>${stop.note}</p>` : "";
@@ -29,9 +32,9 @@ function renderJourneyMap() {
         scrollWheelZoom: true,
     }).setView([20, 0], 2);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    L.tileLayer(BASEMAP_URL, {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        attribution: BASEMAP_ATTRIBUTION,
     }).addTo(map);
 
     if (!journeys.length) {
@@ -195,8 +198,9 @@ function renderGeocodePreviewMaps() {
             touchZoom: false,
         }).setView([latitude, longitude], 11);
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        L.tileLayer(BASEMAP_URL, {
             maxZoom: 19,
+            attribution: BASEMAP_ATTRIBUTION,
         }).addTo(map);
 
         L.marker([latitude, longitude]).addTo(map);
